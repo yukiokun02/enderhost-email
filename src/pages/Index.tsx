@@ -5,7 +5,10 @@ import EnderLogo from '@/components/EnderLogo';
 
 const Index = () => {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-4 sm:p-6">
+    <div 
+      className="min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 bg-cover bg-center"
+      style={{ backgroundImage: 'url("/lovable-uploads/6dfb7bae-3215-4242-a7ae-2d890cf83cf4.png")' }}
+    >
       <div className="glass-card p-6 sm:p-8 w-full max-w-md mx-auto animate-pulse-border">
         <div className="flex flex-col items-center space-y-6">
           <EnderLogo />
