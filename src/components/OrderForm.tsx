@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -32,28 +31,37 @@ const OrderForm: React.FC = () => {
     setIsSubmitting(true);
 
     try {
-      // In a real implementation, this would call your API to store data
-      // and send the email to the customer
-      await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate API call
+      const response = await fetch('/api/order.php', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
       
-      toast({
-        title: "Order Confirmed!",
-        description: "Server details have been sent to customer's email.",
-        variant: "default",
-      });
-
-      // Reset form after successful submission
-      setFormData({
-        orderId: '',
-        serverName: '',
-        email: '',
-        password: '',
-        customerName: ''
-      });
+      const data = await response.json();
+      
+      if (data.status === 'success') {
+        toast({
+          title: "Order Confirmed!",
+          description: "Server details have been sent to customer's email.",
+          variant: "default",
+        });
+        
+        setFormData({
+          orderId: '',
+          serverName: '',
+          email: '',
+          password: '',
+          customerName: ''
+        });
+      } else {
+        throw new Error(data.message || 'Something went wrong');
+      }
     } catch (error) {
       toast({
         title: "Submission Failed",
-        description: "There was an error processing your request.",
+        description: error instanceof Error ? error.message : "There was an error processing your request.",
         variant: "destructive",
       });
     } finally {
