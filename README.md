@@ -2,7 +2,7 @@
 # EnderHOST Order System
 
 ## Overview
-This is a web application for EnderHOST that allows collection of Minecraft server orders. The system captures customer details, stores them in a MariaDB database, and sends confirmation emails with login credentials to customers.
+This is a web application for EnderHOST that allows collection of Minecraft server orders. The system captures customer details, stores them in a MariaDB database, and sends confirmation emails with login credentials to customers. It also includes an automated system for sending expiration reminders to customers.
 
 ## System Requirements
 - Linux VPS with root access
@@ -11,6 +11,7 @@ This is a web application for EnderHOST that allows collection of Minecraft serv
 - MariaDB/MySQL
 - PHPMailer for email delivery
 - Brevo SMTP account (already set up)
+- Cron job capability for scheduled tasks
 
 ## Project Structure
 ```
@@ -21,6 +22,7 @@ enderhost-order/
 │   └── images/          # Images and logo
 ├── api/                 # Backend PHP scripts
 │   ├── order.php        # Order processing script
+│   ├── expiry_check.php # Expiration reminder script
 │   ├── db_config.php    # Database configuration
 │   └── mail_config.php  # Email configuration
 └── database/            # Database scripts
@@ -393,6 +395,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 EOF
 ```
 
+Create the expiry check script:
+```bash
+cat > /var/www/enderhost-order/api/expiry_check.php << 'EOF'
+<?php
+// Script content will be copied from the implementation above
+// This is a placeholder - use the full script content from earlier
+EOF
+```
+
 ### 7. Install PHPMailer via Composer
 
 ```bash
@@ -447,7 +458,25 @@ sudo nginx -t
 sudo systemctl restart nginx
 ```
 
-### 9. Build and Deploy Frontend
+### 9. Set Up the Cron Job for Expiry Reminders
+
+Create a log directory for PHP errors:
+```bash
+sudo mkdir -p /var/log/php
+sudo chown www-data:www-data /var/log/php
+```
+
+Add a cron job to run the expiry check script daily:
+```bash
+sudo crontab -e
+```
+
+Add this line to run the script at 8 AM daily:
+```
+0 8 * * * php /var/www/enderhost-order/api/expiry_check.php >> /var/log/php/expiry_cron.log 2>&1
+```
+
+### 10. Build and Deploy Frontend
 
 Build the React application on your development machine:
 ```bash
@@ -458,49 +487,6 @@ Transfer the built files to the server:
 ```bash
 # Local command - replace with your server details
 scp -r build/* user@your-server:/var/www/enderhost-order/public/
-```
-
-### 10. Modify Frontend API URL
-Update the OrderForm.tsx file to point to your API:
-
-```javascript
-// In the handleSubmit function of OrderForm.tsx
-try {
-  const response = await fetch('/api/order.php', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(formData),
-  });
-  
-  const data = await response.json();
-  
-  if (data.status === 'success') {
-    toast({
-      title: "Order Confirmed!",
-      description: "Server details have been sent to customer's email.",
-      variant: "default",
-    });
-    
-    // Reset form after successful submission
-    setFormData({
-      orderId: '',
-      serverName: '',
-      email: '',
-      password: '',
-      customerName: ''
-    });
-  } else {
-    throw new Error(data.message || 'Something went wrong');
-  }
-} catch (error) {
-  toast({
-    title: "Submission Failed",
-    description: error.message || "There was an error processing your request.",
-    variant: "destructive",
-  });
-}
 ```
 
 ### 11. Set Up SSL with Let's Encrypt
@@ -550,11 +536,17 @@ sudo chmod +x /etc/cron.daily/backup-enderhost-orders
 - Verify Brevo SMTP credentials
 - Check server firewall for outgoing SMTP connections
 - Review PHP error logs: `sudo tail -f /var/log/nginx/error.log`
+- Check expiry notification logs: `sudo tail -f /var/log/php/expiry_error.log`
 
 ### Web Server Issues
 - Check Nginx logs: `sudo tail -f /var/log/nginx/error.log`
 - Verify file permissions: `sudo chown -R www-data:www-data /var/www/enderhost-order`
 - Test Nginx configuration: `sudo nginx -t`
+
+### Expiration Reminder Issues
+- Check cron execution logs: `sudo tail -f /var/log/php/expiry_cron.log`
+- Ensure the cron job is properly set up: `sudo crontab -l`
+- Verify PHP execution permissions
 
 ## Maintenance Tasks
 
@@ -584,6 +576,9 @@ SELECT * FROM orders WHERE expiry_date BETWEEN NOW() AND DATE_ADD(NOW(), INTERVA
 
 -- Update order status
 UPDATE orders SET status = 'renewed', expiry_date = DATE_ADD(expiry_date, INTERVAL 30 DAY) WHERE order_id = 'ORDER123';
+
+-- Check expired orders
+SELECT * FROM orders WHERE status = 'expired';
 ```
 
 ## Security Considerations
@@ -594,3 +589,4 @@ UPDATE orders SET status = 'renewed', expiry_date = DATE_ADD(expiry_date, INTERV
 4. Regularly rotate database credentials and SMTP passwords
 5. Monitor logs for suspicious activity
 6. Consider implementing a Web Application Firewall (WAF)
+7. Encrypt sensitive data in the database if needed

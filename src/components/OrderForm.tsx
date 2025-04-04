@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -44,7 +45,7 @@ const OrderForm: React.FC = () => {
       if (data.status === 'success') {
         toast({
           title: "Order Confirmed!",
-          description: "Server details have been sent to customer's email.",
+          description: "Server details have been sent to customer's email. They'll also receive expiration reminders before the 30-day period ends.",
           variant: "default",
         });
         
@@ -190,6 +191,10 @@ const OrderForm: React.FC = () => {
       >
         {isSubmitting ? "Processing..." : "Submit Order"}
       </Button>
+      
+      <p className="text-xs text-gray-400 text-center mt-2">
+        The customer will receive automatic email reminders 2 days before expiration and on the expiration date.
+      </p>
     </form>
   );
 };
