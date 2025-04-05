@@ -1,4 +1,3 @@
-
 <?php
 // Include PHPMailer classes
 use PHPMailer\PHPMailer\PHPMailer;

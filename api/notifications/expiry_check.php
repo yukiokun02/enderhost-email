@@ -1,4 +1,3 @@
-
 <?php
 // Script to check for expiring orders and send reminder emails
 require_once __DIR__ . '/../config/db_config.php';
