@@ -56,9 +56,10 @@ chmod -R 755 dist
 composer require phpmailer/phpmailer
 ```
 
-2. Update database and email configurations:
-   - Edit `api/config/db_config.php` with your database credentials
-   - Edit `api/config/mail_config.php` with your Brevo SMTP credentials
+2. Configuration is pre-set with the following:
+   - Database: `orderdb` with user `orderadmin`
+   - SMTP: Brevo service with credentials pre-configured
+   - Admin email: mail.enderhost@gmail.com
 
 ### 5. Nginx Configuration
 Create a new Nginx site configuration:

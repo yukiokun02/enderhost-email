@@ -1,3 +1,4 @@
+
 <?php
 // Required headers
 header("Access-Control-Allow-Origin: *");
@@ -15,21 +16,23 @@ $data = json_decode(file_get_contents("php://input"), true);
 
 // Validate data
 if (
-    empty($data['server_name']) ||
+    empty($data['serverName']) ||
     empty($data['email']) ||
     empty($data['password']) ||
-    empty($data['customer_name'])
+    empty($data['customerName'])
 ) {
     // Set response code - 400 bad request
     http_response_code(400);
     
     // Tell the user
-    echo json_encode(array("message" => "Unable to create order. Data is incomplete."));
+    echo json_encode(array("status" => "error", "message" => "Unable to create order. Data is incomplete."));
     exit();
 }
 
-// Generate a unique order ID (format: ORD-YYYYMMDD-XXXXX)
-$order_id = 'ORD-' . date('Ymd') . '-' . substr(uniqid(), -5);
+// Generate a unique order ID if not provided
+if (empty($data['orderId'])) {
+    $data['orderId'] = 'EH-' . date('Ymd') . '-' . substr(uniqid(), -5);
+}
 
 // Calculate expiry date (30 days from now)
 $order_date = date('Y-m-d H:i:s');
@@ -43,11 +46,11 @@ $query = "INSERT INTO orders
 $stmt = $conn->prepare($query);
 $stmt->bind_param(
     "sssssss",
-    $order_id,
-    $data['server_name'],
+    $data['orderId'],
+    $data['serverName'],
     $data['email'],
     $data['password'],
-    $data['customer_name'],
+    $data['customerName'],
     $order_date,
     $expiry_date
 );
@@ -56,11 +59,11 @@ $stmt->bind_param(
 if ($stmt->execute()) {
     // Prepare order data for email
     $orderData = array(
-        'order_id' => $order_id,
-        'server_name' => $data['server_name'],
+        'order_id' => $data['orderId'],
+        'server_name' => $data['serverName'],
         'email' => $data['email'],
         'password' => $data['password'],
-        'customer_name' => $data['customer_name'],
+        'customer_name' => $data['customerName'],
         'order_date' => $order_date,
         'expiry_date' => $expiry_date
     );
@@ -73,8 +76,9 @@ if ($stmt->execute()) {
     
     // Tell the user
     echo json_encode(array(
+        "status" => "success",
         "message" => "Order was created successfully.",
-        "order_id" => $order_id,
+        "order_id" => $data['orderId'],
         "email_sent" => $emailSent ? "yes" : "no"
     ));
 } else {
@@ -82,7 +86,7 @@ if ($stmt->execute()) {
     http_response_code(503);
     
     // Tell the user
-    echo json_encode(array("message" => "Unable to create order. " . $stmt->error));
+    echo json_encode(array("status" => "error", "message" => "Unable to create order. " . $stmt->error));
 }
 
 // Close statement and connection

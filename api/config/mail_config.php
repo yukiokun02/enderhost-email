@@ -1,3 +1,4 @@
+
 <?php
 // Include PHPMailer classes
 use PHPMailer\PHPMailer\PHPMailer;
@@ -18,16 +19,17 @@ function sendOrderConfirmation($orderData) {
     try {
         // Server settings
         $mail->isSMTP();
-        $mail->Host       = 'smtp-relay.brevo.com'; // Your Brevo SMTP server
+        $mail->Host       = 'smtp-relay.brevo.com'; // Brevo SMTP server
         $mail->SMTPAuth   = true;
-        $mail->Username   = 'your_brevo_username'; // Your Brevo username
-        $mail->Password   = 'your_brevo_password'; // Your Brevo password
+        $mail->Username   = '87821c001@smtp-brevo.com'; // Brevo username
+        $mail->Password   = 'G5yfcVOZT84BaAMI'; // Brevo password
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
         $mail->Port       = 587;
         
         // Recipients
-        $mail->setFrom('noreply@enderhost.in', 'EnderHOST');
+        $mail->setFrom('mail.enderhost@gmail.com', 'EnderHOST');
         $mail->addAddress($orderData['email'], $orderData['customer_name']);
+        $mail->addBCC('mail.enderhost@gmail.com'); // Send a copy to admin
         
         // Content
         $mail->isHTML(true);

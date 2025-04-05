@@ -32,13 +32,17 @@ const OrderForm: React.FC = () => {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch('/api/order.php', {
+      const response = await fetch('/api/orders/create_order.php', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(formData),
       });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
       
       const data = await response.json();
       
@@ -60,6 +64,7 @@ const OrderForm: React.FC = () => {
         throw new Error(data.message || 'Something went wrong');
       }
     } catch (error) {
+      console.error('Submission error:', error);
       toast({
         title: "Submission Failed",
         description: error instanceof Error ? error.message : "There was an error processing your request.",
@@ -84,11 +89,10 @@ const OrderForm: React.FC = () => {
           <Input
             id="orderId"
             name="orderId"
-            placeholder="Enter order ID"
+            placeholder="Enter order ID (optional)"
             className="bg-enderhost-dark border-enderhost-purple/30 focus:border-enderhost-purple focus:ring-enderhost-purple/20"
             value={formData.orderId}
             onChange={handleChange}
-            required
           />
         </div>
 

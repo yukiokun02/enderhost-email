@@ -1,12 +1,12 @@
 
 -- Create database and user
-CREATE DATABASE IF NOT EXISTS enderhost_orders;
-CREATE USER IF NOT EXISTS 'enderhost_user'@'localhost' IDENTIFIED BY 'your_strong_password';
-GRANT ALL PRIVILEGES ON enderhost_orders.* TO 'enderhost_user'@'localhost';
+CREATE DATABASE IF NOT EXISTS orderdb;
+CREATE USER IF NOT EXISTS 'orderadmin'@'localhost' IDENTIFIED BY 'CODENAMEorder@';
+GRANT ALL PRIVILEGES ON orderdb.* TO 'orderadmin'@'localhost';
 FLUSH PRIVILEGES;
 
 -- Switch to the database
-USE enderhost_orders;
+USE orderdb;
 
 -- Create orders table
 CREATE TABLE IF NOT EXISTS orders (

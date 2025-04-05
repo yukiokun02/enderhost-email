@@ -2,9 +2,9 @@
 <?php
 // Database configuration
 define('DB_SERVER', 'localhost');
-define('DB_USERNAME', 'enderhost_user');
-define('DB_PASSWORD', 'your_strong_password');
-define('DB_NAME', 'enderhost_orders');
+define('DB_USERNAME', 'orderadmin');
+define('DB_PASSWORD', 'CODENAMEorder@');
+define('DB_NAME', 'orderdb');
 
 // Establish database connection
 $conn = mysqli_connect(DB_SERVER, DB_USERNAME, DB_PASSWORD, DB_NAME);
