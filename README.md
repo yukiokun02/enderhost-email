@@ -7,11 +7,9 @@ The EnderHOST Order System allows you to collect Minecraft server orders, store 
 ## Directory Structure
 ```
 /
-├── public/               # Frontend files
-│   ├── index.html        # Main HTML file
-│   ├── css/              # CSS files
-│   └── js/               # JavaScript files
-├── api/                  # Backend API
+├── public/               # Static assets
+├── src/                  # React frontend source
+├── api/                  # Backend API files
 │   ├── config/           # Configuration files
 │   │   ├── db_config.php     # Database connection
 │   │   └── mail_config.php   # Email settings
@@ -19,7 +17,6 @@ The EnderHOST Order System allows you to collect Minecraft server orders, store 
 │   │   └── create_order.php  # Create new orders
 │   └── notifications/    # Notification system
 │       └── expiry_check.php  # Expiry checks and notifications
-├── vendor/               # Composer dependencies
 └── sql/                  # SQL scripts
     └── database_schema.sql   # Database schema
 ```
@@ -30,6 +27,7 @@ The EnderHOST Order System allows you to collect Minecraft server orders, store 
 - Nginx web server
 - PHP 7.4+ with php-fpm
 - MariaDB database
+- Node.js 18+ and npm
 - Composer (for installing PHPMailer)
 
 ### 2. Database Setup
@@ -38,18 +36,29 @@ Run the SQL script:
 mysql -u root -p < sql/database_schema.sql
 ```
 
-### 3. Application Setup
-1. Upload all the files to your web server.
+### 3. Frontend Build
+1. Install dependencies and build the React application:
+```bash
+npm install
+npm run build
+```
+
+This will create a `dist` directory with optimized production files.
+
+2. Set proper permissions:
+```bash
+chmod -R 755 dist
+```
+
+### 4. Backend Setup
+1. Install PHPMailer using Composer:
+```bash
+composer require phpmailer/phpmailer
+```
 
 2. Update database and email configurations:
    - Edit `api/config/db_config.php` with your database credentials
    - Edit `api/config/mail_config.php` with your Brevo SMTP credentials
-
-### 4. Install PHPMailer
-Install PHPMailer using Composer:
-```bash
-composer require phpmailer/phpmailer
-```
 
 ### 5. Nginx Configuration
 Create a new Nginx site configuration:
@@ -57,20 +66,24 @@ Create a new Nginx site configuration:
 server {
     listen 80;
     server_name order.enderhost.in;  # Replace with your domain
-    root /path/to/your/website/public;
+    
+    # Frontend - static files from the build
+    root /path/to/your/website/dist;
     index index.html;
-
+    
+    # Backend API
     location /api/ {
-        try_files $uri $uri/ /index.php$is_args$args;
+        alias /path/to/your/website/api/;
         
         location ~ \.php$ {
             include snippets/fastcgi-php.conf;
+            fastcgi_param SCRIPT_FILENAME $request_filename;
             fastcgi_pass unix:/var/run/php/php7.4-fpm.sock;  # Update PHP version if needed
-            fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
             include fastcgi_params;
         }
     }
-
+    
+    # Handle routing for SPA
     location / {
         try_files $uri $uri/ /index.html;
     }
@@ -115,12 +128,7 @@ certbot --nginx -d order.enderhost.in
 - Verify MariaDB credentials and permissions
 - Check if MariaDB is running: `systemctl status mariadb`
 
-### Web Server Issues
-- Check Nginx logs: `tail -f /var/log/nginx/error.log`
-- Test Nginx configuration: `nginx -t`
-- Check file permissions: 
-```bash
-chown -R www-data:www-data /path/to/your/website
-find /path/to/your/website -type d -exec chmod 755 {} \;
-find /path/to/your/website -type f -exec chmod 644 {} \;
-```
+### Frontend Issues
+- Check for build errors in the npm build output
+- Verify that the Nginx configuration points to the correct dist directory
+- Check browser console for JavaScript errors
