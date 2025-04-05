@@ -32,6 +32,7 @@ const OrderForm: React.FC = () => {
     setIsSubmitting(true);
 
     try {
+      // Use the correct API path that matches the Nginx configuration
       const response = await fetch('/api/orders/create_order.php', {
         method: 'POST',
         headers: {
@@ -41,7 +42,9 @@ const OrderForm: React.FC = () => {
       });
       
       if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
+        const errorText = await response.text();
+        console.error('Server response:', response.status, errorText);
+        throw new Error(`HTTP error! Status: ${response.status}. ${errorText || ''}`);
       }
       
       const data = await response.json();
