@@ -1,8 +1,8 @@
 
 <?php
 // Script to check for expiring orders and send reminder emails
-require_once 'db_config.php';
-require_once 'mail_config.php';
+require_once __DIR__ . '/../config/db_config.php';
+require_once __DIR__ . '/../config/mail_config.php';
 
 // Enable error logging for debugging
 error_reporting(E_ALL);
@@ -285,7 +285,7 @@ function sendAdminNotification($orders) {
             <div class="container">
                 <div class="header">
                     <h1>Server Expiry Alert</h1>
-                    <p>The following servers are expiring in 28 days (2 days from now)</p>
+                    <p>The following servers are expiring in 2 days</p>
                 </div>
                 <div class="content">
                     <table>
@@ -327,7 +327,7 @@ function sendAdminNotification($orders) {
         
         // Plain text alternative
         $plainText = "Server Expiry Alert\n\n";
-        $plainText .= "The following servers are expiring in 28 days (2 days from now):\n\n";
+        $plainText .= "The following servers are expiring in 2 days:\n\n";
         
         foreach ($orders as $order) {
             $plainText .= "Order ID: {$order['order_id']}\n";
