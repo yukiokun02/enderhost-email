@@ -2,72 +2,98 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
+ 
 @layer base {
   :root {
-    --background: 225 25% 11%;
-    --foreground: 210 40% 98%;
-
-    --card: 224 71% 4%;
-    --card-foreground: 210 40% 98%;
-
-    --popover: 224 71% 4%;
-    --popover-foreground: 210 40% 98%;
-
-    --primary: 262 100% 70%;
-    --primary-foreground: 210 40% 98%;
-
-    --secondary: 217 91% 60%;
-    --secondary-foreground: 210 40% 98%;
-
-    --muted: 215 25% 20%;
-    --muted-foreground: 215 20% 65%;
-
-    --accent: 217 91% 60%;
-    --accent-foreground: 210 40% 98%;
-
-    --destructive: 0 62% 30%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 215 27% 30%;
-    --input: 215 29% 22%;
-    --ring: 262 100% 70%;
-
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
+    --card: 240 10% 3.9%;
+    --card-foreground: 0 0% 98%;
+    --popover: 240 10% 3.9%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 0 0% 98%;
+    --primary-foreground: 240 5.9% 10%;
+    --secondary: 240 3.7% 15.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
+    --accent: 240 3.7% 15.9%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
+    --ring: 240 4.9% 83.9%;
     --radius: 0.5rem;
+    
+    --enderhost-blue: 209 95% 53%;
+    --enderhost-purple: 273 67% 58%;
   }
 }
-
+ 
 @layer base {
   * {
     @apply border-border;
   }
-
   body {
-    @apply bg-enderhost-black text-foreground;
-    background-image: radial-gradient(circle at 100% 0%, 
-                      rgba(138, 100, 255, 0.15) 0%, 
-                      rgba(59, 130, 246, 0.1) 25%, 
-                      rgba(15, 23, 42, 0) 50%),
-                     radial-gradient(circle at 0% 100%, 
-                      rgba(138, 100, 255, 0.15) 0%, 
-                      rgba(59, 130, 246, 0.1) 25%, 
-                      rgba(15, 23, 42, 0) 50%);
-    background-size: cover;
-    background-repeat: no-repeat;
-    min-height: 100vh;
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
   }
 }
 
-.glass-card {
-  @apply bg-enderhost-black/80 backdrop-blur-lg border-2 border-enderhost-purple/30 rounded-xl shadow-lg;
-  box-shadow: 0 4px 30px rgba(138, 100, 255, 0.2);
+@layer components {
+  .glass-card {
+    @apply rounded-lg backdrop-blur-md bg-black bg-opacity-30 border border-gray-700 shadow-xl;
+  }
+  
+  .animate-pulse-border {
+    @apply relative;
+  }
+  
+  .animate-pulse-border::after {
+    content: '';
+    @apply absolute inset-0 rounded-lg;
+    box-shadow: 0 0 15px 2px theme('colors.purple.500');
+    animation: pulse 3s infinite;
+  }
+  
+  @keyframes pulse {
+    0% { opacity: 0.2; }
+    50% { opacity: 0.7; }
+    100% { opacity: 0.2; }
+  }
 }
 
-.animate-pulse-border {
-  animation: pulse-border 3s infinite;
-}
-
-@keyframes pulse-border {
-  0%, 100% { border-color: rgba(138, 100, 255, 0.3); }
-  50% { border-color: rgba(59, 130, 246, 0.5); }
+@layer utilities {
+  .text-enderhost-blue {
+    color: hsl(var(--enderhost-blue));
+  }
+  
+  .text-enderhost-purple {
+    color: hsl(var(--enderhost-purple));
+  }
+  
+  .bg-enderhost-blue {
+    background-color: hsl(var(--enderhost-blue));
+  }
+  
+  .bg-enderhost-purple {
+    background-color: hsl(var(--enderhost-purple));
+  }
+  
+  .hover\:bg-enderhost-blue:hover {
+    background-color: hsl(var(--enderhost-blue));
+  }
+  
+  .hover\:bg-enderhost-purple:hover {
+    background-color: hsl(var(--enderhost-purple));
+  }
+  
+  .hover\:text-enderhost-blue:hover {
+    color: hsl(var(--enderhost-blue));
+  }
+  
+  .hover\:text-enderhost-purple:hover {
+    color: hsl(var(--enderhost-purple));
+  }
 }

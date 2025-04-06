@@ -4,12 +4,26 @@
 ## Overview
 The EnderHOST Order System allows you to collect Minecraft server orders, store customer details in MariaDB, and automate email communications. It includes automatic expiration reminders for both customers and administrators.
 
+## Security Features
+- **Staff-Only Access**: Protected login system restricts access to authorized users only
+- **Admin User Management**: Administrators can create and manage staff accounts
+- **Session Management**: Secure PHP session management with 30-minute inactivity timeout
+- **No Public Registration**: New accounts can only be created by existing administrators
+
 ## Directory Structure
 ```
 /
 ├── public/               # Static assets
 ├── src/                  # React frontend source
+│   ├── components/       # Reusable components
+│   ├── hooks/            # Custom React hooks
+│   └── pages/            # Application pages
 ├── api/                  # Backend API files
+│   ├── auth/             # Authentication system
+│   │   ├── login.php         # User login
+│   │   ├── logout.php        # User logout
+│   │   ├── check_session.php # Session validation
+│   │   └── manage_user.php   # User management 
 │   ├── config/           # Configuration files
 │   │   ├── db_config.php     # Database connection
 │   │   └── mail_config.php   # Email settings
@@ -51,12 +65,24 @@ chmod -R 755 dist
 ```
 
 ### 4. Backend Setup
-1. Install PHPMailer using Composer:
+1. Initialize the authentication system:
+```bash
+php api/auth/init_auth.php
+```
+
+This will create:
+- The `users` database table
+- Default admin user with credentials:
+  - Username: `admin`
+  - Password: `admin123` (change this after first login)
+- Required log directories
+
+2. Install PHPMailer using Composer:
 ```bash
 composer require phpmailer/phpmailer
 ```
 
-2. Configuration is pre-set with the following:
+3. Configuration is pre-set with the following:
    - Database: `orderdb` with user `orderadmin`
    - SMTP: Brevo service with credentials pre-configured
    - Admin email: mail.enderhost@gmail.com
@@ -118,7 +144,35 @@ apt install certbot python3-certbot-nginx
 certbot --nginx -d order.enderhost.in
 ```
 
+## Authentication System
+
+### Default Admin Access
+- Username: `admin`
+- Password: `admin123`
+
+**Important:** Change the default admin password after your first login.
+
+### User Management
+- Only authenticated administrators can create new user accounts
+- Passwords are securely hashed using PHP's password_hash function
+- Each user can change their own password or reset others' passwords
+- Activity logs are maintained for all authentication events
+
+### Security Considerations
+- The system implements PHP session-based authentication
+- Sessions expire after 30 minutes of inactivity
+- Authentication logs record login attempts and admin actions
+- All password changes and user management actions are logged
+
 ## Troubleshooting Tips
+
+### Login Issues
+- Check authentication logs: `tail -f /var/log/php/auth.log`
+- Verify database credentials in `api/config/db_config.php`
+- Reset admin password using a direct database command if needed:
+```sql
+UPDATE users SET password = PASSWORD_HASH('your_new_password', PASSWORD_DEFAULT) WHERE username = 'admin';
+```
 
 ### Email Issues
 - Verify your Brevo SMTP credentials
