@@ -77,9 +77,9 @@ const Login = () => {
       className="min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 bg-cover bg-center"
       style={{ backgroundImage: 'url("/lovable-uploads/6dfb7bae-3215-4242-a7ae-2d890cf83cf4.png")' }}
     >
-      <div className="glass-card p-6 sm:p-8 w-full max-w-md mx-auto animate-pulse-border">
-        <div className="flex flex-col items-center space-y-6">
-          <EnderLogo />
+      <div className="glass-card p-6 sm:p-8 w-full max-w-md mx-auto relative">
+        <div className="flex flex-col items-center space-y-6 relative z-10">
+          <EnderLogo width={60} height={60} />
           
           <div className="text-center space-y-2">
             <h1 className="text-2xl font-bold text-white">Staff Login</h1>
@@ -100,7 +100,7 @@ const Login = () => {
                       <Input 
                         placeholder="Enter your username" 
                         {...field} 
-                        className="bg-opacity-20 bg-black text-white"
+                        className="bg-opacity-20 bg-black text-white border-gray-600 focus:border-enderhost-purple"
                       />
                     </FormControl>
                     <FormMessage />
@@ -119,7 +119,7 @@ const Login = () => {
                         type="password" 
                         placeholder="Enter your password" 
                         {...field} 
-                        className="bg-opacity-20 bg-black text-white"
+                        className="bg-opacity-20 bg-black text-white border-gray-600 focus:border-enderhost-purple"
                       />
                     </FormControl>
                     <FormMessage />
@@ -149,6 +149,9 @@ const Login = () => {
             </a>
           </div>
         </div>
+        
+        {/* Add a separate decorative border that doesn't interfere with clicks */}
+        <div className="absolute inset-0 rounded-lg animate-pulse-border pointer-events-none"></div>
       </div>
     </div>
   );

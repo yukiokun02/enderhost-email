@@ -52,7 +52,7 @@
   
   .animate-pulse-border::after {
     content: '';
-    @apply absolute inset-0 rounded-lg;
+    @apply absolute inset-0 rounded-lg pointer-events-none;
     box-shadow: 0 0 15px 2px theme('colors.purple.500');
     animation: pulse 3s infinite;
   }
