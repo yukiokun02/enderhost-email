@@ -1,3 +1,4 @@
+
 <?php
 // Script to check for expiring orders and send reminder emails
 require_once __DIR__ . '/../config/db_config.php';
@@ -40,7 +41,7 @@ function sendExpiryReminder($order, $daysLeft) {
             ? 'URGENT: Your Minecraft Server Has Expired - EnderHOST' 
             : 'REMINDER: Your Minecraft Server Will Expire Soon - EnderHOST';
         
-        // HTML Email Body
+        // HTML Email Body with dark background and light text
         $mailContent = '
         <!DOCTYPE html>
         <html>
@@ -54,8 +55,8 @@ function sendExpiryReminder($order, $daysLeft) {
                     line-height: 1.6;
                     margin: 0;
                     padding: 0;
-                    background-color: #0F172A;
-                    color: #ffffff;
+                    background-color: #222222;
+                    color: #FFFFFF;
                 }
                 .container {
                     max-width: 600px;
@@ -74,7 +75,7 @@ function sendExpiryReminder($order, $daysLeft) {
                     padding: 20px 0;
                 }
                 .server-details {
-                    background-color: rgba(15, 23, 42, 0.6);
+                    background-color: rgba(30, 30, 46, 0.8);
                     border-radius: 8px;
                     padding: 15px;
                     margin: 20px 0;
@@ -113,10 +114,13 @@ function sendExpiryReminder($order, $daysLeft) {
                     margin: 15px 0;
                 }
                 h1, h2 {
-                    color: white;
+                    color: #FFFFFF;
                 }
                 a {
                     color: #3B82F6;
+                }
+                p {
+                    color: #FFFFFF;
                 }
             </style>
         </head>
@@ -156,6 +160,12 @@ function sendExpiryReminder($order, $daysLeft) {
                         </div>
                     </div>
                     
+                    <p>To access your server control panel, please visit our website and log in with the email and password provided.</p>
+                    
+                    <div style="text-align: center;">
+                        <a href="https://panel.enderhost.in" class="button">Access Control Panel</a>
+                    </div>
+                    
                     <p>To renew your server, please join our Discord server and create a renewal ticket:</p>
                     <div style="text-align: center;">
                         <a href="https://discord.gg/bsGPB9VpUY" class="button">Join Discord & Renew</a>
@@ -182,6 +192,7 @@ function sendExpiryReminder($order, $daysLeft) {
                         "Server Name: {$order['server_name']}\n".
                         "Login Email: {$order['email']}\n".
                         "Expiry Date: " . date('F j, Y', strtotime($order['expiry_date'])) . "\n\n".
+                        "To access your control panel: https://panel.enderhost.in\n\n".
                         "To renew your server, please join our Discord server and create a renewal ticket:\n".
                         "https://discord.gg/bsGPB9VpUY\n\n".
                         "Thank you for choosing EnderHOST!\n".

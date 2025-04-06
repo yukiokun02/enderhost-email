@@ -47,7 +47,7 @@ function sendOrderConfirmation($orderData) {
         $mail->isHTML(true);
         $mail->Subject = 'Your Minecraft Server is Ready - EnderHOST';
         
-        // HTML Email Body with EnderHOST styling
+        // HTML Email Body with EnderHOST styling - Dark background with light text
         $mailContent = '
         <!DOCTYPE html>
         <html>
@@ -61,8 +61,8 @@ function sendOrderConfirmation($orderData) {
                     line-height: 1.6;
                     margin: 0;
                     padding: 0;
-                    background-color: #0F172A;
-                    color: #ffffff;
+                    background-color: #222222;
+                    color: #FFFFFF;
                 }
                 .container {
                     max-width: 600px;
@@ -81,7 +81,7 @@ function sendOrderConfirmation($orderData) {
                     padding: 20px 0;
                 }
                 .server-details {
-                    background-color: rgba(15, 23, 42, 0.6);
+                    background-color: rgba(30, 30, 46, 0.8);
                     border-radius: 8px;
                     padding: 15px;
                     margin: 20px 0;
@@ -114,10 +114,13 @@ function sendOrderConfirmation($orderData) {
                     margin-top: 15px;
                 }
                 h1, h2 {
-                    color: white;
+                    color: #FFFFFF;
                 }
                 a {
                     color: #3B82F6;
+                }
+                p {
+                    color: #FFFFFF;
                 }
             </style>
         </head>
@@ -156,7 +159,7 @@ function sendOrderConfirmation($orderData) {
                     <p>To access your server control panel, please visit our website and log in with the email and password provided above.</p>
                     
                     <div style="text-align: center;">
-                        <a href="https://www.enderhost.in/login" class="button">Access Control Panel</a>
+                        <a href="https://panel.enderhost.in" class="button">Access Control Panel</a>
                     </div>
                     
                     <p>If you need any assistance or have questions, feel free to join our Discord community:</p>
@@ -185,7 +188,7 @@ function sendOrderConfirmation($orderData) {
                          "Order Date: " . date('F j, Y', strtotime($orderData['order_date'])) . "\n".
                          "Expiry Date: " . date('F j, Y', strtotime($orderData['expiry_date'])) . "\n\n".
                          "To access your server control panel, please visit our website and log in with the email and password provided above.\n".
-                         "https://www.enderhost.in/login\n\n".
+                         "https://panel.enderhost.in\n\n".
                          "If you need any assistance or have questions, feel free to join our Discord community:\n".
                          "https://discord.gg/bsGPB9VpUY\n\n".
                          "Thank you for choosing EnderHOST!\n".
