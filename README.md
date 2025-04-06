@@ -35,155 +35,198 @@ The EnderHOST Order System allows you to collect Minecraft server orders, store 
     └── database_schema.sql   # Database schema
 ```
 
-## Quick Setup Guide
+## Step-by-Step Setup Guide
 
 ### 1. Server Requirements
-- Nginx web server
-- PHP 7.4+ with php-fpm
-- MariaDB database
+- Nginx or Apache web server
+- PHP 7.4+ with php-fpm and mysqli extension
+- MariaDB/MySQL database
 - Node.js 18+ and npm
 - Composer (for installing PHPMailer)
 
 ### 2. Database Setup
-Run the SQL script:
+1. Create a database user for the application:
+```bash
+mysql -u root -p
+```
+
+2. Run the SQL script to create the database and tables:
 ```bash
 mysql -u root -p < sql/database_schema.sql
 ```
 
+3. Verify that the database was created properly:
+```bash
+mysql -u root -p -e "SHOW DATABASES;" | grep orderdb
+```
+
 ### 3. Frontend Build
-1. Install dependencies and build the React application:
+1. Clone the repository and navigate to the project:
+```bash
+git clone [repository-url]
+cd enderhost-order-system
+```
+
+2. Install dependencies and build the React application:
 ```bash
 npm install
 npm run build
 ```
 
-This will create a `dist` directory with optimized production files.
-
-2. Set proper permissions:
+3. Set proper permissions for the build directory:
 ```bash
 chmod -R 755 dist
 ```
 
-### 4. Backend Setup
-1. Initialize the authentication system:
+### 4. Authentication System Setup
+1. Create the logs directory for authentication logs:
+```bash
+mkdir -p api/logs
+chmod 755 api/logs
+```
+
+2. Initialize the authentication system:
 ```bash
 php api/auth/init_auth.php
 ```
 
-This will create:
-- The `users` database table
-- Default admin user with credentials:
+This will:
+- Create the `users` database table if it doesn't exist
+- Create a default admin account with:
   - Username: `admin`
-  - Password: `admin123` (change this after first login)
-- Required log directories
+  - Password: `admin123`
 
-2. Install PHPMailer using Composer:
-```bash
-composer require phpmailer/phpmailer
-```
+3. **IMPORTANT**: Change the default admin password after first login!
 
-3. Configuration is pre-set with the following:
-   - Database: `orderdb` with user `orderadmin`
-   - SMTP: Brevo service with credentials pre-configured
-   - Admin email: mail.enderhost@gmail.com
+### 5. Web Server Configuration
 
-### 5. Nginx Configuration
-Create a new Nginx site configuration:
-```
+#### For Nginx:
+Create a new site configuration in `/etc/nginx/sites-available/`:
+
+```nginx
 server {
     listen 80;
-    server_name order.enderhost.in;  # Replace with your domain
-    
-    # Frontend - static files from the build
-    root /path/to/your/website/dist;
-    index index.html;
-    
-    # Backend API
-    location /api/ {
-        alias /path/to/your/website/api/;
-        
-        location ~ \.php$ {
-            include snippets/fastcgi-php.conf;
-            fastcgi_param SCRIPT_FILENAME $request_filename;
-            fastcgi_pass unix:/var/run/php/php7.4-fpm.sock;  # Update PHP version if needed
-            include fastcgi_params;
-        }
-    }
-    
-    # Handle routing for SPA
+    server_name your-domain.com;
+    root /path/to/your/project/dist;
+    index index.html index.php;
+
+    # Frontend - static files
     location / {
         try_files $uri $uri/ /index.html;
     }
 
-    location ~ /\.(ht|git) {
+    # Backend API
+    location /api/ {
+        try_files $uri $uri/ /api/index.php?$query_string;
+        
+        location ~ \.php$ {
+            include snippets/fastcgi-php.conf;
+            fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+            fastcgi_pass unix:/var/run/php/php7.4-fpm.sock;  # Update PHP version if needed
+        }
+    }
+
+    # Deny access to sensitive files
+    location ~ /\.(git|htaccess|env) {
         deny all;
     }
 }
 ```
 
-### 6. Set Up Expiry Notification System
-1. Create a log directory:
+Enable the site:
 ```bash
-mkdir -p /var/log/php
-chown www-data:www-data /var/log/php
+ln -s /etc/nginx/sites-available/your-domain.com /etc/nginx/sites-enabled/
+nginx -t
+systemctl reload nginx
 ```
 
-2. Add a cron job to run the expiry notification script daily:
+#### For Apache:
+Create an .htaccess file in your project root:
+
+```apache
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /
+    
+    # API requests pass through to PHP
+    RewriteRule ^api/(.*)$ api/$1 [L]
+    
+    # SPA routing - redirect to index.html
+    RewriteRule ^index\.html$ - [L]
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule . /index.html [L]
+</IfModule>
+```
+
+### 6. Finalize Configuration
+
+1. Set up the notification system for order expiry reminders:
 ```bash
 crontab -e
 ```
 
-Add this line:
+Add this line to run the expiry check daily at 8 AM:
 ```
-0 8 * * * php /path/to/your/website/api/notifications/expiry_check.php >> /var/log/php/expiry_cron.log 2>&1
+0 8 * * * php /path/to/your/project/api/notifications/expiry_check.php >> /var/log/php/expiry_check.log 2>&1
 ```
 
-### 7. Set Up SSL (Optional but Recommended)
+2. Create the log directory:
 ```bash
-apt install certbot python3-certbot-nginx
-certbot --nginx -d order.enderhost.in
+mkdir -p /var/log/php
+chmod 755 /var/log/php
 ```
 
-## Authentication System
+### 7. First Login
 
-### Default Admin Access
-- Username: `admin`
-- Password: `admin123`
+1. Access your application at http://your-domain.com
+2. Log in with the default credentials:
+   - Username: `admin`
+   - Password: `admin123`
+3. Immediately navigate to the User Management page to:
+   - Change the default admin password
+   - Create additional staff accounts as needed
 
-**Important:** Change the default admin password after your first login.
+## User Management Instructions
 
-### User Management
-- Only authenticated administrators can create new user accounts
-- Passwords are securely hashed using PHP's password_hash function
-- Each user can change their own password or reset others' passwords
-- Activity logs are maintained for all authentication events
+### Managing Users
+1. Login as an administrator
+2. Click on the "Users" link in the header
+3. From the User Management page, you can:
+   - Create new staff accounts
+   - Reset passwords for existing users
+   - Delete user accounts (cannot delete your own account)
 
-### Security Considerations
-- The system implements PHP session-based authentication
-- Sessions expire after 30 minutes of inactivity
-- Authentication logs record login attempts and admin actions
-- All password changes and user management actions are logged
+### Password Security Guidelines
+- Use strong passwords with at least 8 characters
+- Include a mix of uppercase, lowercase, numbers, and special characters
+- Change passwords regularly
+- Each staff member should have their own account (no shared accounts)
 
-## Troubleshooting Tips
+## Troubleshooting
 
 ### Login Issues
-- Check authentication logs: `tail -f /var/log/php/auth.log`
-- Verify database credentials in `api/config/db_config.php`
-- Reset admin password using a direct database command if needed:
-```sql
-UPDATE users SET password = PASSWORD_HASH('your_new_password', PASSWORD_DEFAULT) WHERE username = 'admin';
-```
+- Verify database connection in `api/config/db_config.php`
+- Check authentication logs: `tail -f api/logs/auth.log`
+- Ensure sessions are working properly: `php -i | grep session`
 
-### Email Issues
-- Verify your Brevo SMTP credentials
-- Check PHP error logs: `tail -f /var/log/nginx/error.log`
-- Check expiry cron logs: `tail -f /var/log/php/expiry_cron.log`
+### Common Database Issues
+- Make sure MariaDB/MySQL service is running: `systemctl status mysql`
+- Check database connection details in `api/config/db_config.php`
+- Verify the database user has proper permissions
 
-### Database Connectivity
-- Verify MariaDB credentials and permissions
-- Check if MariaDB is running: `systemctl status mariadb`
+### Server Configuration Issues
+- Check web server error logs:
+  - Nginx: `tail -f /var/log/nginx/error.log`
+  - Apache: `tail -f /var/log/apache2/error.log`
+- Verify PHP is configured properly: `php -v`
 
-### Frontend Issues
-- Check for build errors in the npm build output
-- Verify that the Nginx configuration points to the correct dist directory
-- Check browser console for JavaScript errors
+## Security Considerations
+
+- **Change Default Password**: Immediately change the default admin password after first login
+- **Regular Updates**: Keep PHP, MariaDB, and all dependencies up to date
+- **Backup Regularly**: Set up regular database backups
+- **Monitor Logs**: Check authentication logs regularly for suspicious activity
+- **HTTPS**: For production, always use HTTPS with a valid SSL certificate
+
+For additional assistance, contact the EnderHOST development team.
