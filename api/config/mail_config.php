@@ -3,6 +3,7 @@
 // Include PHPMailer classes
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
+use PHPMailer\PHPMailer\SMTP;
 
 // Load PHPMailer autoloader
 require_once __DIR__ . '/../../vendor/autoload.php';
@@ -17,14 +18,25 @@ function sendOrderConfirmation($orderData) {
     $mail = new PHPMailer(true);
     
     try {
+        // Enable more detailed debugging
+        $mail->SMTPDebug = SMTP::DEBUG_SERVER;
+        $debugOutput = '';
+        $mail->Debugoutput = function($str, $level) use (&$debugOutput) {
+            $debugOutput .= date('Y-m-d H:i:s') . ": " . $str . "\n";
+        };
+
         // Server settings
         $mail->isSMTP();
-        $mail->Host       = 'smtp-relay.brevo.com'; // Brevo SMTP server
+        $mail->Host       = 'smtp-relay.brevo.com';
         $mail->SMTPAuth   = true;
-        $mail->Username   = '87821c001@smtp-brevo.com'; // Brevo username
-        $mail->Password   = 'G5yfcVOZT84BaAMI'; // Brevo password
+        $mail->Username   = '87821c001@smtp-brevo.com';
+        $mail->Password   = 'G5yfcVOZT84BaAMI';
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
         $mail->Port       = 587;
+        
+        // Set timeout values
+        $mail->Timeout = 60; // seconds
+        $mail->SMTPKeepAlive = true; // maintain the SMTP connection
         
         // Recipients
         $mail->setFrom('mail.enderhost@gmail.com', 'EnderHOST');
@@ -179,11 +191,84 @@ function sendOrderConfirmation($orderData) {
                          "Thank you for choosing EnderHOST!\n".
                          "www.enderhost.in";
         
-        $mail->send();
-        return true;
+        // Attempt to send the email
+        $mailSent = $mail->send();
+        
+        // Log the SMTP conversation regardless of success
+        file_put_contents(__DIR__ . '/../mail_debug.log', date('Y-m-d H:i:s') . ": Mail to {$orderData['email']} " . 
+                         ($mailSent ? "sent successfully" : "failed") . "\n" . $debugOutput . "\n\n", FILE_APPEND);
+        
+        return $mailSent;
     } catch (Exception $e) {
-        error_log("Order confirmation email could not be sent. Mailer Error: {$mail->ErrorInfo}");
+        // Log error information
+        $errorMessage = "Order confirmation email could not be sent. Mailer Error: {$mail->ErrorInfo}\n";
+        $errorMessage .= "Debug output: \n" . $debugOutput . "\n";
+        file_put_contents(__DIR__ . '/../mail_error.log', date('Y-m-d H:i:s') . ": " . $errorMessage . "\n\n", FILE_APPEND);
         return false;
+    }
+}
+
+/**
+ * Test the email configuration
+ * 
+ * @param string $testEmail Email to send test to
+ * @return array Status and any error message
+ */
+function testEmailConfiguration($testEmail = 'mail.enderhost@gmail.com') {
+    $mail = new PHPMailer(true);
+    
+    try {
+        // Enable debugging
+        $mail->SMTPDebug = SMTP::DEBUG_SERVER;
+        $debugOutput = '';
+        $mail->Debugoutput = function($str, $level) use (&$debugOutput) {
+            $debugOutput .= date('Y-m-d H:i:s') . ": " . $str . "\n";
+        };
+
+        // Server settings
+        $mail->isSMTP();
+        $mail->Host       = 'smtp-relay.brevo.com';
+        $mail->SMTPAuth   = true;
+        $mail->Username   = '87821c001@smtp-brevo.com';
+        $mail->Password   = 'G5yfcVOZT84BaAMI';
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+        $mail->Port       = 587;
+        
+        // Set timeout values
+        $mail->Timeout = 60;
+        
+        // Recipients
+        $mail->setFrom('mail.enderhost@gmail.com', 'EnderHOST Test');
+        $mail->addAddress($testEmail);
+        
+        // Content
+        $mail->isHTML(true);
+        $mail->Subject = 'EnderHOST Email Test';
+        $mail->Body    = 'This is a test email to verify the email configuration is working correctly.';
+        $mail->AltBody = 'This is a test email to verify the email configuration is working correctly.';
+        
+        // Send the email and capture the result
+        $result = $mail->send();
+        
+        // Log the test regardless of success
+        file_put_contents(__DIR__ . '/../mail_test.log', date('Y-m-d H:i:s') . ": Test email to {$testEmail} " . 
+                         ($result ? "sent successfully" : "failed") . "\n" . $debugOutput . "\n\n", FILE_APPEND);
+        
+        return array(
+            'success' => true,
+            'message' => 'Test email sent successfully'
+        );
+    } catch (Exception $e) {
+        $errorMessage = "Test email could not be sent. Mailer Error: {$mail->ErrorInfo}\n";
+        $errorMessage .= "Debug output: \n" . $debugOutput . "\n";
+        
+        // Log the error
+        file_put_contents(__DIR__ . '/../mail_test_error.log', date('Y-m-d H:i:s') . ": " . $errorMessage . "\n\n", FILE_APPEND);
+        
+        return array(
+            'success' => false,
+            'message' => $mail->ErrorInfo
+        );
     }
 }
 ?>

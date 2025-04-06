@@ -32,7 +32,9 @@ const OrderForm: React.FC = () => {
     setIsSubmitting(true);
 
     try {
-      // Use the correct API path that matches the Nginx configuration
+      console.log('Submitting to API:', '/api/orders/create_order.php');
+      
+      // Use the correct API path
       const response = await fetch('/api/orders/create_order.php', {
         method: 'POST',
         headers: {
@@ -41,6 +43,8 @@ const OrderForm: React.FC = () => {
         body: JSON.stringify(formData),
       });
       
+      console.log('API Response status:', response.status);
+      
       if (!response.ok) {
         const errorText = await response.text();
         console.error('Server response:', response.status, errorText);
@@ -48,13 +52,23 @@ const OrderForm: React.FC = () => {
       }
       
       const data = await response.json();
+      console.log('API Response data:', data);
       
       if (data.status === 'success') {
-        toast({
-          title: "Order Confirmed!",
-          description: "Server details have been sent to customer's email. They'll also receive expiration reminders before the 30-day period ends.",
-          variant: "default",
-        });
+        // Check if email was sent
+        if (data.email_sent === "yes") {
+          toast({
+            title: "Order Confirmed!",
+            description: "Server details have been sent to customer's email. They'll also receive expiration reminders before the 30-day period ends.",
+            variant: "default",
+          });
+        } else {
+          toast({
+            title: "Order Created - Email Issue",
+            description: "Order was created successfully, but there was a problem sending the email. Please check server logs.",
+            variant: "destructive",
+          });
+        }
         
         setFormData({
           orderId: '',
@@ -69,7 +83,7 @@ const OrderForm: React.FC = () => {
     } catch (error) {
       console.error('Submission error:', error);
       toast({
-        title: "Submission Failed",
+        title: "Submission Issue",
         description: error instanceof Error ? error.message : "There was an error processing your request.",
         variant: "destructive",
       });

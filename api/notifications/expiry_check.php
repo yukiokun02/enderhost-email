@@ -14,17 +14,24 @@ function sendExpiryReminder($order, $daysLeft) {
     $mail = new PHPMailer\PHPMailer\PHPMailer(true);
     
     try {
+        // Enable debugging
+        $mail->SMTPDebug = PHPMailer\PHPMailer\SMTP::DEBUG_SERVER;
+        $debugOutput = '';
+        $mail->Debugoutput = function($str, $level) use (&$debugOutput) {
+            $debugOutput .= date('Y-m-d H:i:s') . ": " . $str . "\n";
+        };
+
         // Server settings
         $mail->isSMTP();
-        $mail->Host       = 'smtp-relay.brevo.com'; // Your Brevo SMTP server
+        $mail->Host       = 'smtp-relay.brevo.com';
         $mail->SMTPAuth   = true;
-        $mail->Username   = 'your_brevo_username'; // Your Brevo username
-        $mail->Password   = 'your_brevo_password'; // Your Brevo password
+        $mail->Username   = '87821c001@smtp-brevo.com';
+        $mail->Password   = 'G5yfcVOZT84BaAMI';
         $mail->SMTPSecure = PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS;
         $mail->Port       = 587;
         
         // Recipients
-        $mail->setFrom('noreply@enderhost.in', 'EnderHOST');
+        $mail->setFrom('mail.enderhost@gmail.com', 'EnderHOST');
         $mail->addAddress($order['email'], $order['customer_name']);
         
         // Content
@@ -181,9 +188,16 @@ function sendExpiryReminder($order, $daysLeft) {
                         "www.enderhost.in";
         
         $mail->send();
+        
+        // Log the success
+        file_put_contents(__DIR__ . '/../reminder_email.log', date('Y-m-d H:i:s') . ": Reminder email sent successfully to {$order['email']} for order {$order['order_id']}\n", FILE_APPEND);
+        
         return true;
     } catch (Exception $e) {
-        error_log("Message could not be sent. Mailer Error: {$mail->ErrorInfo}");
+        // Log error information
+        $errorMessage = "Reminder email could not be sent. Mailer Error: {$mail->ErrorInfo}\n";
+        $errorMessage .= "Debug output: \n" . $debugOutput . "\n";
+        file_put_contents(__DIR__ . '/../reminder_error.log', date('Y-m-d H:i:s') . ": " . $errorMessage . "\n\n", FILE_APPEND);
         return false;
     }
 }
@@ -197,18 +211,25 @@ function sendAdminNotification($orders) {
     $mail = new PHPMailer\PHPMailer\PHPMailer(true);
     
     try {
+        // Enable debugging
+        $mail->SMTPDebug = PHPMailer\PHPMailer\SMTP::DEBUG_SERVER;
+        $debugOutput = '';
+        $mail->Debugoutput = function($str, $level) use (&$debugOutput) {
+            $debugOutput .= date('Y-m-d H:i:s') . ": " . $str . "\n";
+        };
+
         // Server settings
         $mail->isSMTP();
-        $mail->Host       = 'smtp-relay.brevo.com'; // Your Brevo SMTP server
+        $mail->Host       = 'smtp-relay.brevo.com';
         $mail->SMTPAuth   = true;
-        $mail->Username   = 'your_brevo_username'; // Your Brevo username
-        $mail->Password   = 'your_brevo_password'; // Your Brevo password
+        $mail->Username   = '87821c001@smtp-brevo.com';
+        $mail->Password   = 'G5yfcVOZT84BaAMI';
         $mail->SMTPSecure = PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS;
         $mail->Port       = 587;
         
         // Recipients
-        $mail->setFrom('noreply@enderhost.in', 'EnderHOST System');
-        $mail->addAddress('admin@enderhost.in', 'EnderHOST Admin'); // Replace with your admin email
+        $mail->setFrom('mail.enderhost@gmail.com', 'EnderHOST System');
+        $mail->addAddress('mail.enderhost@gmail.com', 'EnderHOST Admin');
         
         // Content
         $mail->isHTML(true);
@@ -341,9 +362,16 @@ function sendAdminNotification($orders) {
         $mail->AltBody = $plainText;
         
         $mail->send();
+        
+        // Log the success
+        file_put_contents(__DIR__ . '/../admin_notification.log', date('Y-m-d H:i:s') . ": Admin notification sent successfully\n", FILE_APPEND);
+        
         return true;
     } catch (Exception $e) {
-        error_log("Admin notification could not be sent. Mailer Error: {$mail->ErrorInfo}");
+        // Log error information
+        $errorMessage = "Admin notification could not be sent. Mailer Error: {$mail->ErrorInfo}\n";
+        $errorMessage .= "Debug output: \n" . $debugOutput . "\n";
+        file_put_contents(__DIR__ . '/../admin_error.log', date('Y-m-d H:i:s') . ": " . $errorMessage . "\n\n", FILE_APPEND);
         return false;
     }
 }

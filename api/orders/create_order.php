@@ -58,8 +58,8 @@ $expiry_date = date('Y-m-d H:i:s', strtotime('+30 days'));
 try {
     // Create order query
     $query = "INSERT INTO orders
-              (order_id, server_name, email, password, customer_name, order_date, expiry_date)
-              VALUES (?, ?, ?, ?, ?, ?, ?)";
+              (order_id, server_name, email, password, customer_name, order_date, expiry_date, status)
+              VALUES (?, ?, ?, ?, ?, ?, ?, 'active')";
 
     $stmt = $conn->prepare($query);
     
@@ -94,13 +94,17 @@ try {
         // Send confirmation email
         $emailSent = sendOrderConfirmation($orderData);
         
+        // Log email sending result
+        file_put_contents(__DIR__ . '/debug_email.log', date('Y-m-d H:i:s') . ": Email " . 
+                         ($emailSent ? "sent successfully" : "failed") . " for order {$data['orderId']}" . PHP_EOL, FILE_APPEND);
+        
         // Set response code - 201 created
         http_response_code(201);
         
         // Tell the user
         echo json_encode(array(
             "status" => "success",
-            "message" => "Order was created successfully.",
+            "message" => "Order was created successfully. " . ($emailSent ? "Email sent." : "Email could not be sent."),
             "order_id" => $data['orderId'],
             "email_sent" => $emailSent ? "yes" : "no"
         ));
