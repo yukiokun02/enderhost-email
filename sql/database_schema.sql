@@ -36,3 +36,9 @@ CREATE INDEX idx_expiry_date ON orders (expiry_date);
 CREATE INDEX idx_status ON orders (status);
 CREATE INDEX idx_user_group ON users (user_group);
 
+-- Insert default admin user if the users table is empty
+INSERT INTO users (username, password, user_group)
+SELECT 'admin', '$2y$10$X7BjSzUi.ZFMtH/66v1TdeDLUHVe6h.XeWCIwdwqsDEI.3GY.yh1K', 'admin'
+FROM dual
+WHERE NOT EXISTS (SELECT 1 FROM users LIMIT 1);
+-- Note: This is a hashed version of 'admin123'

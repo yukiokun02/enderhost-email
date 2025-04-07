@@ -8,6 +8,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/useAuth';
 import EnderLogo from '@/components/EnderLogo';
 
 const formSchema = z.object({
@@ -23,6 +24,7 @@ const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { login } = useAuth();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -47,10 +49,14 @@ const Login = () => {
       const data = await response.json();
       
       if (data.status === 'success') {
+        // Update the auth context with the user information
+        login(data.username, data.userGroup || 'staff');
+        
         toast({
           title: "Login successful",
           description: "Welcome back!",
         });
+        
         // Redirect to the dashboard
         navigate('/');
       } else {
@@ -61,12 +67,12 @@ const Login = () => {
         });
       }
     } catch (error) {
+      console.error('Login error:', error);
       toast({
         variant: "destructive",
         title: "Login error",
         description: "An unexpected error occurred. Please try again.",
       });
-      console.error('Login error:', error);
     } finally {
       setIsLoading(false);
     }

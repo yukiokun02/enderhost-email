@@ -20,7 +20,7 @@ $tableResult = mysqli_query($conn, $checkTableSql);
 
 if (mysqli_num_rows($tableResult) == 0) {
     // Create the users table with user_group field
-    $createTableSql = "CREATE TABLE users (
+    $createTableSql = "CREATE TABLE IF NOT EXISTS users (
         id INT AUTO_INCREMENT PRIMARY KEY,
         username VARCHAR(50) NOT NULL UNIQUE,
         password VARCHAR(255) NOT NULL,
@@ -42,6 +42,7 @@ if (mysqli_num_rows($tableResult) == 0) {
         
         if (mysqli_stmt_execute($stmt)) {
             echo "Created default admin user (username: admin, password: admin123)\n";
+            file_put_contents($logsDir . '/auth.log', date('Y-m-d H:i:s') . ": Created default admin user with admin privileges\n", FILE_APPEND);
         } else {
             echo "Error creating default admin user: " . mysqli_error($conn) . "\n";
         }
@@ -73,6 +74,30 @@ if (mysqli_num_rows($tableResult) == 0) {
         }
     } else {
         echo "Users table with user_group column already exists\n";
+    }
+    
+    // Verify if admin user exists, if not create it
+    $checkAdminSql = "SELECT id FROM users WHERE username = 'admin'";
+    $adminResult = mysqli_query($conn, $checkAdminSql);
+    
+    if (mysqli_num_rows($adminResult) == 0) {
+        // Create default admin user
+        $defaultUsername = 'admin';
+        $defaultPassword = password_hash('admin123', PASSWORD_DEFAULT);
+        $defaultGroup = 'admin';
+        
+        $insertAdminSql = "INSERT INTO users (username, password, user_group) VALUES (?, ?, ?)";
+        $stmt = mysqli_prepare($conn, $insertAdminSql);
+        mysqli_stmt_bind_param($stmt, "sss", $defaultUsername, $defaultPassword, $defaultGroup);
+        
+        if (mysqli_stmt_execute($stmt)) {
+            echo "Created default admin user (username: admin, password: admin123)\n";
+            file_put_contents($logsDir . '/auth.log', date('Y-m-d H:i:s') . ": Created default admin user with admin privileges\n", FILE_APPEND);
+        } else {
+            echo "Error creating default admin user: " . mysqli_error($conn) . "\n";
+        }
+    } else {
+        echo "Admin user already exists\n";
     }
 }
 
