@@ -28,8 +28,8 @@ const Header = () => {
         </div>
       </div>
       
-      {/* Floating Action Buttons */}
-      <div className="fixed bottom-6 right-6 flex flex-col space-y-4">
+      {/* Floating Action Buttons - properly stacked vertically */}
+      <div className="fixed bottom-6 right-6 flex flex-col gap-4">
         {userGroup === 'admin' && (
           <Link to="/users">
             <Button 
