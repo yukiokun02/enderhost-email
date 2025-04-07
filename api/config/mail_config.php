@@ -38,7 +38,7 @@ function sendOrderConfirmation($orderData) {
         $mail->SMTPKeepAlive = true; // maintain the SMTP connection
         
         // Recipients
-        $mail->setFrom('mail.enderhost@gmail.com', 'EnderHOST');
+        $mail->setFrom('noreply@enderhost.in', 'EnderHOST');
         $mail->addAddress($orderData['email'], $orderData['customer_name']);
         $mail->addBCC('mail.enderhost@gmail.com'); // Send a copy to admin
         
@@ -261,7 +261,7 @@ function testEmailConfiguration($testEmail = 'mail.enderhost@gmail.com') {
         $mail->Timeout = 60;
         
         // Recipients
-        $mail->setFrom('mail.enderhost@gmail.com', 'EnderHOST Test');
+        $mail->setFrom('noreply@enderhost.in', 'EnderHOST Test');
         $mail->addAddress($testEmail);
         
         // Content

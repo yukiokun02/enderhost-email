@@ -1,4 +1,3 @@
-
 <?php
 // Script to check for expiring orders and send reminder emails
 require_once __DIR__ . '/../config/db_config.php';
@@ -32,7 +31,7 @@ function sendExpiryReminder($order, $daysLeft) {
         $mail->Port       = 587;
         
         // Recipients
-        $mail->setFrom('mail.enderhost@gmail.com', 'EnderHOST');
+        $mail->setFrom('noreply@enderhost.in', 'EnderHOST');
         $mail->addAddress($order['email'], $order['customer_name']);
         
         // Content
@@ -239,14 +238,14 @@ function sendAdminNotification($orders) {
         $mail->Port       = 587;
         
         // Recipients
-        $mail->setFrom('mail.enderhost@gmail.com', 'EnderHOST System');
+        $mail->setFrom('noreply@enderhost.in', 'EnderHOST System');
         $mail->addAddress('mail.enderhost@gmail.com', 'EnderHOST Admin');
         
         // Content
         $mail->isHTML(true);
         $mail->Subject = 'Server Expiry Alert: ' . count($orders) . ' Servers Expiring Soon';
         
-        // HTML Email Body
+        // Simplified HTML Email Body for Admin
         $mailContent = '
         <!DOCTYPE html>
         <html>
@@ -260,95 +259,80 @@ function sendAdminNotification($orders) {
                     line-height: 1.6;
                     margin: 0;
                     padding: 0;
-                    background-color: #0F172A;
-                    color: #ffffff;
+                    background-color: #f5f5f5;
+                    color: #333333;
                 }
                 .container {
                     max-width: 800px;
                     margin: 0 auto;
                     padding: 20px;
-                    background-color: #1E1E2E;
+                    background-color: #ffffff;
                     border-radius: 8px;
-                    border: 1px solid rgba(138, 100, 255, 0.3);
+                    border: 1px solid #dddddd;
                 }
                 .header {
                     text-align: center;
                     padding-bottom: 20px;
-                    border-bottom: 1px solid rgba(138, 100, 255, 0.3);
-                }
-                .content {
-                    padding: 20px 0;
+                    border-bottom: 1px solid #dddddd;
                 }
                 table {
                     width: 100%;
                     border-collapse: collapse;
                     margin: 20px 0;
-                    background-color: rgba(15, 23, 42, 0.6);
-                    border-radius: 8px;
-                    overflow: hidden;
                 }
                 th, td {
-                    padding: 12px 15px;
+                    padding: 10px;
                     text-align: left;
-                    border-bottom: 1px solid rgba(138, 100, 255, 0.2);
+                    border-bottom: 1px solid #dddddd;
                 }
                 th {
-                    background-color: rgba(59, 130, 246, 0.2);
-                    color: #8A64FF;
+                    background-color: #f2f2f2;
                     font-weight: bold;
-                }
-                tr:last-child td {
-                    border-bottom: none;
                 }
                 .footer {
                     text-align: center;
                     padding-top: 20px;
-                    border-top: 1px solid rgba(138, 100, 255, 0.3);
+                    border-top: 1px solid #dddddd;
                     font-size: 12px;
-                    color: #cccccc;
-                }
-                h1, h2 {
-                    color: white;
+                    color: #666666;
                 }
             </style>
         </head>
         <body>
             <div class="container">
                 <div class="header">
-                    <h1>Server Expiry Alert</h1>
+                    <h2>Server Expiry Alert</h2>
                     <p>The following servers are expiring in 2 days</p>
                 </div>
-                <div class="content">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Order ID</th>
-                                <th>Server Name</th>
-                                <th>Customer</th>
-                                <th>Email</th>
-                                <th>Expiry Date</th>
-                            </tr>
-                        </thead>
-                        <tbody>';
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Server Name</th>
+                            <th>Customer</th>
+                            <th>Email</th>
+                            <th>Expiry Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>';
         
         foreach ($orders as $order) {
             $mailContent .= '
-                            <tr>
-                                <td>' . $order['order_id'] . '</td>
-                                <td>' . $order['server_name'] . '</td>
-                                <td>' . $order['customer_name'] . '</td>
-                                <td>' . $order['email'] . '</td>
-                                <td>' . date('Y-m-d', strtotime($order['expiry_date'])) . '</td>
-                            </tr>';
+                        <tr>
+                            <td>' . $order['order_id'] . '</td>
+                            <td>' . $order['server_name'] . '</td>
+                            <td>' . $order['customer_name'] . '</td>
+                            <td>' . $order['email'] . '</td>
+                            <td>' . date('Y-m-d', strtotime($order['expiry_date'])) . '</td>
+                        </tr>';
         }
         
         $mailContent .= '
-                        </tbody>
-                    </table>
-                </div>
+                    </tbody>
+                </table>
                 <div class="footer">
                     <p>This is an automated system message from EnderHOST Server Management System.</p>
-                    <p>&copy; ' . date('Y') . ' EnderHOST. All rights reserved.</p>
+                    <p>&copy; ' . date('Y') . ' EnderHOST</p>
                 </div>
             </div>
         </body>
