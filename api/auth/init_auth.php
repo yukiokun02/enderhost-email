@@ -31,9 +31,9 @@ if (mysqli_num_rows($tableResult) == 0) {
     if (mysqli_query($conn, $createTableSql)) {
         echo "Created users table\n";
         
-        // Create default admin user
+        // Create default admin user with consistent hash
         $defaultUsername = 'admin';
-        $defaultPassword = password_hash('admin123', PASSWORD_DEFAULT);
+        $defaultPassword = '$2y$10$x8H9Xb9aOQXJPh/zH2FKHuRcIi7/jOQk0l.ZNPZ5IMNjbhxIyhkhu'; // Hash for 'admin123'
         $defaultGroup = 'admin';
         
         $insertAdminSql = "INSERT INTO users (username, password, user_group) VALUES (?, ?, ?)";
@@ -81,9 +81,9 @@ if (mysqli_num_rows($tableResult) == 0) {
     $adminResult = mysqli_query($conn, $checkAdminSql);
     
     if (mysqli_num_rows($adminResult) == 0) {
-        // Create default admin user
+        // Create default admin user with consistent hash
         $defaultUsername = 'admin';
-        $defaultPassword = password_hash('admin123', PASSWORD_DEFAULT);
+        $defaultPassword = '$2y$10$x8H9Xb9aOQXJPh/zH2FKHuRcIi7/jOQk0l.ZNPZ5IMNjbhxIyhkhu'; // Hash for 'admin123'
         $defaultGroup = 'admin';
         
         $insertAdminSql = "INSERT INTO users (username, password, user_group) VALUES (?, ?, ?)";
@@ -97,6 +97,17 @@ if (mysqli_num_rows($tableResult) == 0) {
             echo "Error creating default admin user: " . mysqli_error($conn) . "\n";
         }
     } else {
+        // Reset admin password for consistency
+        $resetAdminSql = "UPDATE users SET password = ? WHERE username = 'admin'";
+        $resetStmt = mysqli_prepare($conn, $resetAdminSql);
+        $resetPassword = '$2y$10$x8H9Xb9aOQXJPh/zH2FKHuRcIi7/jOQk0l.ZNPZ5IMNjbhxIyhkhu'; // Hash for 'admin123'
+        mysqli_stmt_bind_param($resetStmt, "s", $resetPassword);
+        
+        if (mysqli_stmt_execute($resetStmt)) {
+            echo "Reset admin password to default (admin123)\n";
+            file_put_contents($logsDir . '/auth.log', date('Y-m-d H:i:s') . ": Reset admin password to default\n", FILE_APPEND);
+        }
+        
         echo "Admin user already exists\n";
     }
 }
