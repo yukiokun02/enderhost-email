@@ -23,7 +23,7 @@ $method = $_SERVER['REQUEST_METHOD'];
 try {
     // List users
     if ($method === 'GET') {
-        $sql = "SELECT id, username, created_at FROM users ORDER BY username";
+        $sql = "SELECT id, username, user_group, created_at FROM users ORDER BY username";
         $result = mysqli_query($conn, $sql);
         
         if (!$result) {
@@ -40,6 +40,13 @@ try {
     
     // Create new user
     elseif ($method === 'POST' && isset($input['action']) && $input['action'] === 'create') {
+        // Check if current user is admin
+        if (!isset($_SESSION['user_group']) || $_SESSION['user_group'] !== 'admin') {
+            http_response_code(403);
+            echo json_encode(['status' => 'error', 'message' => 'Only admin users can create new users']);
+            exit;
+        }
+
         if (!isset($input['username']) || !isset($input['password'])) {
             http_response_code(400);
             echo json_encode(['status' => 'error', 'message' => 'Username and password are required']);
@@ -48,6 +55,9 @@ try {
         
         $username = mysqli_real_escape_string($conn, $input['username']);
         $password = password_hash($input['password'], PASSWORD_DEFAULT);
+        $userGroup = isset($input['user_group']) && in_array($input['user_group'], ['admin', 'staff']) 
+            ? mysqli_real_escape_string($conn, $input['user_group']) 
+            : 'staff';
         
         // Check if username already exists
         $checkSql = "SELECT id FROM users WHERE username = ?";
@@ -63,22 +73,29 @@ try {
         }
         
         // Create new user
-        $sql = "INSERT INTO users (username, password) VALUES (?, ?)";
+        $sql = "INSERT INTO users (username, password, user_group) VALUES (?, ?, ?)";
         $stmt = mysqli_prepare($conn, $sql);
-        mysqli_stmt_bind_param($stmt, "ss", $username, $password);
+        mysqli_stmt_bind_param($stmt, "sss", $username, $password, $userGroup);
         
         if (!mysqli_stmt_execute($stmt)) {
             throw new Exception("Error creating user: " . mysqli_error($conn));
         }
         
         // Log user creation
-        file_put_contents(__DIR__ . '/../logs/auth.log', date('Y-m-d H:i:s') . ": User {$_SESSION['username']} created new user {$username}\n", FILE_APPEND);
+        file_put_contents(__DIR__ . '/../logs/auth.log', date('Y-m-d H:i:s') . ": User {$_SESSION['username']} created new user {$username} with group {$userGroup}\n", FILE_APPEND);
         
         echo json_encode(['status' => 'success', 'message' => 'User created successfully']);
     }
     
     // Delete user
     elseif ($method === 'POST' && isset($input['action']) && $input['action'] === 'delete') {
+        // Check if current user is admin
+        if (!isset($_SESSION['user_group']) || $_SESSION['user_group'] !== 'admin') {
+            http_response_code(403);
+            echo json_encode(['status' => 'error', 'message' => 'Only admin users can delete users']);
+            exit;
+        }
+
         if (!isset($input['user_id'])) {
             http_response_code(400);
             echo json_encode(['status' => 'error', 'message' => 'User ID is required']);
@@ -134,6 +151,13 @@ try {
         
         $user_id = (int)$input['user_id'];
         $new_password = password_hash($input['new_password'], PASSWORD_DEFAULT);
+        
+        // Allow users to change their own password, but only admins can change others' passwords
+        if ($user_id !== (int)$_SESSION['user_id'] && (!isset($_SESSION['user_group']) || $_SESSION['user_group'] !== 'admin')) {
+            http_response_code(403);
+            echo json_encode(['status' => 'error', 'message' => 'You can only change your own password']);
+            exit;
+        }
         
         // Get username for logging
         $getUsernameSql = "SELECT username FROM users WHERE id = ?";

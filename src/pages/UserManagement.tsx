@@ -10,11 +10,14 @@ import { z } from 'zod';
 import { useToast } from '@/hooks/use-toast';
 import Header from '@/components/Header';
 import { useAuth } from '@/hooks/useAuth';
-import { UserPlus, Trash2, Key } from 'lucide-react';
+import { UserPlus, Trash2, Key, User, Shield } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Badge } from '@/components/ui/badge';
 
 interface User {
   id: number;
   username: string;
+  user_group?: string;
   created_at: string;
 }
 
@@ -25,6 +28,7 @@ const newUserSchema = z.object({
   password: z.string().min(6, {
     message: "Password must be at least 6 characters.",
   }),
+  user_group: z.enum(['admin', 'staff']),
 });
 
 const passwordSchema = z.object({
@@ -38,13 +42,14 @@ const UserManagement = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const { toast } = useToast();
-  const { username: currentUsername } = useAuth();
+  const { username: currentUsername, userGroup } = useAuth();
 
   const newUserForm = useForm<z.infer<typeof newUserSchema>>({
     resolver: zodResolver(newUserSchema),
     defaultValues: {
       username: "",
       password: "",
+      user_group: "staff",
     },
   });
 
@@ -96,6 +101,7 @@ const UserManagement = () => {
           action: 'create',
           username: values.username,
           password: values.password,
+          user_group: values.user_group,
         }),
       });
       
@@ -215,6 +221,11 @@ const UserManagement = () => {
     }
   };
 
+  // User group badge color
+  const getUserGroupBadgeVariant = (group: string) => {
+    return group === 'admin' ? 'default' : 'secondary';
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-cover bg-center"
       style={{ backgroundImage: 'url("/lovable-uploads/6dfb7bae-3215-4242-a7ae-2d890cf83cf4.png")' }}>
@@ -225,57 +236,84 @@ const UserManagement = () => {
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-xl font-bold text-white">User Management</h2>
             
-            <Sheet>
-              <SheetTrigger asChild>
-                <Button className="bg-enderhost-purple hover:bg-enderhost-blue">
-                  <UserPlus className="h-4 w-4 mr-2" />
-                  Add User
-                </Button>
-              </SheetTrigger>
-              <SheetContent>
-                <SheetHeader>
-                  <SheetTitle>Create New User</SheetTitle>
-                </SheetHeader>
-                
-                <div className="py-4">
-                  <Form {...newUserForm}>
-                    <form onSubmit={newUserForm.handleSubmit(onCreateUser)} className="space-y-4">
-                      <FormField
-                        control={newUserForm.control}
-                        name="username"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Username</FormLabel>
-                            <FormControl>
-                              <Input placeholder="Enter username" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      
-                      <FormField
-                        control={newUserForm.control}
-                        name="password"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Password</FormLabel>
-                            <FormControl>
-                              <Input type="password" placeholder="Enter password" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      
-                      <Button type="submit" className="w-full" disabled={isLoading}>
-                        {isLoading ? "Creating..." : "Create User"}
-                      </Button>
-                    </form>
-                  </Form>
-                </div>
-              </SheetContent>
-            </Sheet>
+            {userGroup === 'admin' && (
+              <Sheet>
+                <SheetTrigger asChild>
+                  <Button className="bg-enderhost-purple hover:bg-enderhost-blue">
+                    <UserPlus className="h-4 w-4 mr-2" />
+                    Add User
+                  </Button>
+                </SheetTrigger>
+                <SheetContent>
+                  <SheetHeader>
+                    <SheetTitle>Create New User</SheetTitle>
+                  </SheetHeader>
+                  
+                  <div className="py-4">
+                    <Form {...newUserForm}>
+                      <form onSubmit={newUserForm.handleSubmit(onCreateUser)} className="space-y-4">
+                        <FormField
+                          control={newUserForm.control}
+                          name="username"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Username</FormLabel>
+                              <FormControl>
+                                <Input placeholder="Enter username" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        
+                        <FormField
+                          control={newUserForm.control}
+                          name="password"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Password</FormLabel>
+                              <FormControl>
+                                <Input type="password" placeholder="Enter password" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        
+                        <FormField
+                          control={newUserForm.control}
+                          name="user_group"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>User Group</FormLabel>
+                              <Select 
+                                onValueChange={field.onChange} 
+                                defaultValue={field.value}
+                              >
+                                <FormControl>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select user group" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  <SelectItem value="admin">Admin</SelectItem>
+                                  <SelectItem value="staff">Staff</SelectItem>
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        
+                        <Button type="submit" className="w-full" disabled={isLoading}>
+                          {isLoading ? "Creating..." : "Create User"}
+                        </Button>
+                      </form>
+                    </Form>
+                  </div>
+                </SheetContent>
+              </Sheet>
+            )}
           </div>
           
           <div className="overflow-x-auto">
@@ -283,6 +321,7 @@ const UserManagement = () => {
               <thead>
                 <tr>
                   <th className="border-b border-gray-700 py-2 px-4 text-left text-white font-medium">Username</th>
+                  <th className="border-b border-gray-700 py-2 px-4 text-left text-white font-medium">Group</th>
                   <th className="border-b border-gray-700 py-2 px-4 text-left text-white font-medium">Created</th>
                   <th className="border-b border-gray-700 py-2 px-4 text-left text-white font-medium">Actions</th>
                 </tr>
@@ -291,7 +330,15 @@ const UserManagement = () => {
                 {users.map((user) => (
                   <tr key={user.id} className="hover:bg-gray-800/20">
                     <td className="border-b border-gray-700 py-2 px-4 text-white">
-                      {user.username} {user.username === currentUsername && <span className="text-xs text-gray-400">(you)</span>}
+                      <div className="flex items-center">
+                        <User className="h-4 w-4 mr-2 text-gray-400" />
+                        {user.username} {user.username === currentUsername && <span className="ml-2 text-xs text-gray-400">(you)</span>}
+                      </div>
+                    </td>
+                    <td className="border-b border-gray-700 py-2 px-4">
+                      <Badge variant={getUserGroupBadgeVariant(user.user_group || 'staff')}>
+                        {user.user_group || 'staff'}
+                      </Badge>
                     </td>
                     <td className="border-b border-gray-700 py-2 px-4 text-white">
                       {new Date(user.created_at).toLocaleString()}
@@ -344,7 +391,7 @@ const UserManagement = () => {
                           </SheetContent>
                         </Sheet>
                         
-                        {user.username !== currentUsername && (
+                        {userGroup === 'admin' && user.username !== currentUsername && (
                           <Button 
                             variant="destructive" 
                             size="sm"
@@ -361,7 +408,7 @@ const UserManagement = () => {
                 
                 {users.length === 0 && (
                   <tr>
-                    <td colSpan={3} className="border-b border-gray-700 py-4 px-4 text-center text-gray-400">
+                    <td colSpan={4} className="border-b border-gray-700 py-4 px-4 text-center text-gray-400">
                       No users found
                     </td>
                   </tr>

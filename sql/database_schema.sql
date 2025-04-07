@@ -21,7 +21,18 @@ CREATE TABLE IF NOT EXISTS orders (
     status VARCHAR(20) DEFAULT 'active'
 );
 
+-- Create users table with user_group field
+CREATE TABLE IF NOT EXISTS users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(50) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    user_group ENUM('admin', 'staff') NOT NULL DEFAULT 'staff',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Create index for faster queries
 CREATE INDEX idx_order_id ON orders (order_id);
 CREATE INDEX idx_expiry_date ON orders (expiry_date);
 CREATE INDEX idx_status ON orders (status);
+CREATE INDEX idx_user_group ON users (user_group);
+

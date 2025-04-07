@@ -28,7 +28,8 @@ if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true) {
         echo json_encode([
             'status' => 'success',
             'authenticated' => true,
-            'username' => $_SESSION['username']
+            'username' => $_SESSION['username'],
+            'userGroup' => $_SESSION['user_group'] ?? 'staff'
         ]);
     }
 } else {

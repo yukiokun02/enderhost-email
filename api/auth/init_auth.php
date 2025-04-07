@@ -14,16 +14,17 @@ if (!file_exists($logsDir)) {
     echo "Created logs directory\n";
 }
 
-// Create users table if it doesn't exist
+// Check if the users table exists and has the user_group column
 $checkTableSql = "SHOW TABLES LIKE 'users'";
 $tableResult = mysqli_query($conn, $checkTableSql);
 
 if (mysqli_num_rows($tableResult) == 0) {
-    // Create the users table
+    // Create the users table with user_group field
     $createTableSql = "CREATE TABLE users (
         id INT AUTO_INCREMENT PRIMARY KEY,
         username VARCHAR(50) NOT NULL UNIQUE,
         password VARCHAR(255) NOT NULL,
+        user_group ENUM('admin', 'staff') NOT NULL DEFAULT 'staff',
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )";
     
@@ -33,10 +34,11 @@ if (mysqli_num_rows($tableResult) == 0) {
         // Create default admin user
         $defaultUsername = 'admin';
         $defaultPassword = password_hash('admin123', PASSWORD_DEFAULT);
+        $defaultGroup = 'admin';
         
-        $insertAdminSql = "INSERT INTO users (username, password) VALUES (?, ?)";
+        $insertAdminSql = "INSERT INTO users (username, password, user_group) VALUES (?, ?, ?)";
         $stmt = mysqli_prepare($conn, $insertAdminSql);
-        mysqli_stmt_bind_param($stmt, "ss", $defaultUsername, $defaultPassword);
+        mysqli_stmt_bind_param($stmt, "sss", $defaultUsername, $defaultPassword, $defaultGroup);
         
         if (mysqli_stmt_execute($stmt)) {
             echo "Created default admin user (username: admin, password: admin123)\n";
@@ -47,7 +49,31 @@ if (mysqli_num_rows($tableResult) == 0) {
         echo "Error creating users table: " . mysqli_error($conn) . "\n";
     }
 } else {
-    echo "Users table already exists\n";
+    // Check if user_group column exists
+    $checkColumnSql = "SHOW COLUMNS FROM users LIKE 'user_group'";
+    $columnResult = mysqli_query($conn, $checkColumnSql);
+    
+    if (mysqli_num_rows($columnResult) == 0) {
+        // Add user_group column to the users table
+        $addColumnSql = "ALTER TABLE users ADD COLUMN user_group ENUM('admin', 'staff') NOT NULL DEFAULT 'staff'";
+        
+        if (mysqli_query($conn, $addColumnSql)) {
+            echo "Added user_group column to users table\n";
+            
+            // Set the 'admin' user to have admin privileges
+            $updateAdminSql = "UPDATE users SET user_group = 'admin' WHERE username = 'admin'";
+            
+            if (mysqli_query($conn, $updateAdminSql)) {
+                echo "Updated admin user to have admin privileges\n";
+            } else {
+                echo "Error updating admin user: " . mysqli_error($conn) . "\n";
+            }
+        } else {
+            echo "Error adding user_group column: " . mysqli_error($conn) . "\n";
+        }
+    } else {
+        echo "Users table with user_group column already exists\n";
+    }
 }
 
 // Close connection

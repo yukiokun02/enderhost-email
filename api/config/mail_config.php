@@ -46,7 +46,7 @@ function sendOrderConfirmation($orderData) {
         $mail->isHTML(true);
         $mail->Subject = 'Your Minecraft Server is Ready - EnderHOST';
         
-        // HTML Email Body with EnderHOST styling - STATIC COLORS that don't change with device theme
+        // HTML Email Body with EnderHOST styling - STATIC COLORS with high contrast for details
         $mailContent = '
         <!DOCTYPE html>
         <html>
@@ -57,145 +57,140 @@ function sendOrderConfirmation($orderData) {
             <meta name="supported-color-schemes" content="light only">
             <title>EnderHOST - Your Server is Ready</title>
             <style>
-                :root {
-                    color-scheme: light only;
-                    supported-color-schemes: light only;
-                }
                 body {
                     font-family: Arial, sans-serif;
                     line-height: 1.6;
                     margin: 0;
                     padding: 0;
-                    background-color: #1A1F2C !important;
-                    color: #FFFFFF !important;
+                    background-color: #1A1F2C;
+                    color: #FFFFFF;
                 }
                 .container {
                     max-width: 600px;
                     margin: 0 auto;
                     padding: 20px;
-                    background-color: #1A1F2C !important;
+                    background-color: #1A1F2C;
                     border-radius: 8px;
-                    border: 1px solid rgba(138, 100, 255, 0.3) !important;
+                    border: 1px solid rgba(138, 100, 255, 0.3);
                 }
                 .header {
                     text-align: center;
                     padding-bottom: 20px;
-                    border-bottom: 1px solid rgba(138, 100, 255, 0.3) !important;
+                    border-bottom: 1px solid rgba(138, 100, 255, 0.3);
                 }
                 .content {
                     padding: 20px 0;
                 }
                 .server-details {
-                    background-color: rgba(26, 31, 44, 0.8) !important;
+                    background-color: rgba(26, 31, 44, 0.8);
                     border-radius: 8px;
                     padding: 15px;
                     margin: 20px 0;
                 }
                 .detail-row {
                     padding: 8px 0;
-                    border-bottom: 1px solid rgba(138, 100, 255, 0.2) !important;
+                    border-bottom: 1px solid rgba(138, 100, 255, 0.2);
                 }
                 .detail-row:last-child {
                     border-bottom: none;
                 }
                 .label {
                     font-weight: bold;
-                    color: #8A64FF !important;
+                    color: #8A64FF;
+                    display: inline-block;
+                    width: 150px;
+                }
+                .value {
+                    color: #FFFFFF;
+                    font-weight: 500;
                 }
                 .footer {
                     text-align: center;
                     padding-top: 20px;
-                    border-top: 1px solid rgba(138, 100, 255, 0.3) !important;
+                    border-top: 1px solid rgba(138, 100, 255, 0.3);
                     font-size: 12px;
-                    color: #cccccc !important;
+                    color: #cccccc;
                 }
                 .button {
                     display: inline-block;
-                    background: linear-gradient(to right, #8A64FF, #3B82F6) !important;
-                    color: white !important;
+                    background: linear-gradient(to right, #8A64FF, #3B82F6);
+                    color: white;
                     padding: 10px 20px;
                     text-decoration: none;
                     border-radius: 5px;
                     margin-top: 15px;
+                    font-weight: bold;
                 }
                 h1, h2 {
-                    color: #FFFFFF !important;
+                    color: #FFFFFF;
                 }
                 a {
-                    color: #3B82F6 !important;
+                    color: #3B82F6;
                 }
                 p {
-                    color: #FFFFFF !important;
-                }
-                /* Force dark mode styles regardless of user preference */
-                @media (prefers-color-scheme: dark) {
-                    body, .container, .server-details {
-                        background-color: #1A1F2C !important;
-                        color: #FFFFFF !important;
-                    }
-                    h1, h2, p {
-                        color: #FFFFFF !important;
-                    }
-                }
-                /* Force light mode styles regardless of user preference */
-                @media (prefers-color-scheme: light) {
-                    body, .container, .server-details {
-                        background-color: #1A1F2C !important;
-                        color: #FFFFFF !important;
-                    }
-                    h1, h2, p {
-                        color: #FFFFFF !important;
-                    }
+                    color: #FFFFFF;
                 }
             </style>
         </head>
-        <body>
-            <div class="container">
+        <body style="background-color: #1A1F2C; color: #FFFFFF;">
+            <div class="container" style="background-color: #1A1F2C; border: 1px solid rgba(138, 100, 255, 0.3);">
                 <div class="header">
                     <img src="https://www.enderhost.in/path-to-logo.png" alt="EnderHOST Logo" width="150">
-                    <h1>Your Minecraft Server is Ready!</h1>
+                    <h1 style="color: #FFFFFF;">Your Minecraft Server is Ready!</h1>
                 </div>
                 <div class="content">
-                    <p>Hello ' . $orderData['customer_name'] . ',</p>
-                    <p>Thank you for choosing EnderHOST! Your Minecraft server has been successfully created and is now ready to use.</p>
+                    <p style="color: #FFFFFF;">Hello ' . $orderData['customer_name'] . ',</p>
+                    <p style="color: #FFFFFF;">Thank you for choosing EnderHOST! Your Minecraft server has been successfully created and is now ready to use.</p>
                     
-                    <div class="server-details">
-                        <h2>Server Details</h2>
+                    <div class="server-details" style="background-color: #141824; border: 1px solid #8A64FF;">
+                        <h2 style="color: #FFFFFF; text-align: center; margin-bottom: 15px;">Server Details</h2>
+                        
                         <div class="detail-row">
-                            <span class="label">Order ID:</span> ' . $orderData['order_id'] . '
+                            <span class="label" style="color: #8A64FF; font-weight: bold;">Order ID:</span> 
+                            <span class="value" style="color: #FFFFFF;">' . $orderData['order_id'] . '</span>
                         </div>
+                        
                         <div class="detail-row">
-                            <span class="label">Server Name:</span> ' . $orderData['server_name'] . '
+                            <span class="label" style="color: #8A64FF; font-weight: bold;">Server Name:</span> 
+                            <span class="value" style="color: #FFFFFF;">' . $orderData['server_name'] . '</span>
                         </div>
+                        
                         <div class="detail-row">
-                            <span class="label">Login Email:</span> ' . $orderData['email'] . '
+                            <span class="label" style="color: #8A64FF; font-weight: bold;">Login Email:</span> 
+                            <span class="value" style="color: #FFFFFF;">' . $orderData['email'] . '</span>
                         </div>
+                        
                         <div class="detail-row">
-                            <span class="label">Login Password:</span> ' . $orderData['password'] . '
+                            <span class="label" style="color: #8A64FF; font-weight: bold;">Login Password:</span> 
+                            <span class="value" style="color: #FFFFFF;">' . $orderData['password'] . '</span>
                         </div>
+                        
                         <div class="detail-row">
-                            <span class="label">Order Date:</span> ' . date('F j, Y', strtotime($orderData['order_date'])) . '
+                            <span class="label" style="color: #8A64FF; font-weight: bold;">Order Date:</span> 
+                            <span class="value" style="color: #FFFFFF;">' . date('F j, Y', strtotime($orderData['order_date'])) . '</span>
                         </div>
+                        
                         <div class="detail-row">
-                            <span class="label">Expiry Date:</span> ' . date('F j, Y', strtotime($orderData['expiry_date'])) . '
+                            <span class="label" style="color: #8A64FF; font-weight: bold;">Expiry Date:</span> 
+                            <span class="value" style="color: #FFFFFF;">' . date('F j, Y', strtotime($orderData['expiry_date'])) . '</span>
                         </div>
                     </div>
                     
-                    <p>To access your server control panel, please visit our website and log in with the email and password provided above.</p>
+                    <p style="color: #FFFFFF;">To access your server control panel, please visit our website and log in with the email and password provided above.</p>
                     
                     <div style="text-align: center;">
-                        <a href="https://panel.enderhost.in" class="button">Access Control Panel</a>
+                        <a href="https://panel.enderhost.in" class="button" style="background: linear-gradient(to right, #8A64FF, #3B82F6); color: white;">Access Control Panel</a>
                     </div>
                     
-                    <p>If you need any assistance or have questions, feel free to join our Discord community:</p>
+                    <p style="color: #FFFFFF;">If you need any assistance or have questions, feel free to join our Discord community:</p>
                     
                     <div style="text-align: center;">
-                        <a href="https://discord.gg/bsGPB9VpUY" class="button">Join Our Discord</a>
+                        <a href="https://discord.gg/bsGPB9VpUY" class="button" style="background: linear-gradient(to right, #8A64FF, #3B82F6); color: white;">Join Our Discord</a>
                     </div>
                 </div>
                 <div class="footer">
-                    <p>&copy; ' . date('Y') . ' EnderHOST. All rights reserved.</p>
-                    <p><a href="https://www.enderhost.in">www.enderhost.in</a></p>
+                    <p style="color: #cccccc;">&copy; ' . date('Y') . ' EnderHOST. All rights reserved.</p>
+                    <p><a href="https://www.enderhost.in" style="color: #3B82F6;">www.enderhost.in</a></p>
                 </div>
             </div>
         </body>
