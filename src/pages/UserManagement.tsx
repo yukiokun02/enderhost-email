@@ -13,6 +13,14 @@ import { useAuth } from '@/hooks/useAuth';
 import { UserPlus, Trash2, Key, User, Shield } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
+import { 
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from '@/components/ui/table';
 
 interface User {
   id: number;
@@ -227,123 +235,125 @@ const UserManagement = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-cover bg-center"
+    <div className="min-h-screen flex flex-col bg-cover bg-center animate-fade-in"
       style={{ backgroundImage: 'url("/lovable-uploads/6dfb7bae-3215-4242-a7ae-2d890cf83cf4.png")' }}>
       <Header />
       
-      <div className="container mx-auto p-4 md:p-6 flex-grow">
-        <div className="glass-card p-6 mb-6">
+      <div className="container mx-auto p-4 md:p-6 flex-grow mt-16">
+        <div className="glass-card p-6 mb-6 animate-scale-in">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-xl font-bold text-white">User Management</h2>
             
             {userGroup === 'admin' && (
-              <Sheet>
-                <SheetTrigger asChild>
-                  <Button className="bg-enderhost-purple hover:bg-enderhost-blue">
-                    <UserPlus className="h-4 w-4 mr-2" />
-                    Add User
-                  </Button>
-                </SheetTrigger>
-                <SheetContent>
-                  <SheetHeader>
-                    <SheetTitle>Create New User</SheetTitle>
-                  </SheetHeader>
-                  
-                  <div className="py-4">
-                    <Form {...newUserForm}>
-                      <form onSubmit={newUserForm.handleSubmit(onCreateUser)} className="space-y-4">
-                        <FormField
-                          control={newUserForm.control}
-                          name="username"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Username</FormLabel>
-                              <FormControl>
-                                <Input placeholder="Enter username" {...field} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        
-                        <FormField
-                          control={newUserForm.control}
-                          name="password"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Password</FormLabel>
-                              <FormControl>
-                                <Input type="password" placeholder="Enter password" {...field} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        
-                        <FormField
-                          control={newUserForm.control}
-                          name="user_group"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>User Group</FormLabel>
-                              <Select 
-                                onValueChange={field.onChange} 
-                                defaultValue={field.value}
-                              >
+              <div className="flex justify-end">
+                <Sheet>
+                  <SheetTrigger asChild>
+                    <Button className="bg-enderhost-purple hover:bg-enderhost-blue transition-colors duration-300">
+                      <UserPlus className="h-4 w-4 mr-2" />
+                      Add User
+                    </Button>
+                  </SheetTrigger>
+                  <SheetContent className="animate-slide-in-right">
+                    <SheetHeader>
+                      <SheetTitle>Create New User</SheetTitle>
+                    </SheetHeader>
+                    
+                    <div className="py-4">
+                      <Form {...newUserForm}>
+                        <form onSubmit={newUserForm.handleSubmit(onCreateUser)} className="space-y-4">
+                          <FormField
+                            control={newUserForm.control}
+                            name="username"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Username</FormLabel>
                                 <FormControl>
-                                  <SelectTrigger>
-                                    <SelectValue placeholder="Select user group" />
-                                  </SelectTrigger>
+                                  <Input placeholder="Enter username" {...field} />
                                 </FormControl>
-                                <SelectContent>
-                                  <SelectItem value="admin">Admin</SelectItem>
-                                  <SelectItem value="staff">Staff</SelectItem>
-                                </SelectContent>
-                              </Select>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        
-                        <Button type="submit" className="w-full" disabled={isLoading}>
-                          {isLoading ? "Creating..." : "Create User"}
-                        </Button>
-                      </form>
-                    </Form>
-                  </div>
-                </SheetContent>
-              </Sheet>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          
+                          <FormField
+                            control={newUserForm.control}
+                            name="password"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Password</FormLabel>
+                                <FormControl>
+                                  <Input type="password" placeholder="Enter password" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          
+                          <FormField
+                            control={newUserForm.control}
+                            name="user_group"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>User Group</FormLabel>
+                                <Select 
+                                  onValueChange={field.onChange} 
+                                  defaultValue={field.value}
+                                >
+                                  <FormControl>
+                                    <SelectTrigger>
+                                      <SelectValue placeholder="Select user group" />
+                                    </SelectTrigger>
+                                  </FormControl>
+                                  <SelectContent>
+                                    <SelectItem value="admin">Admin</SelectItem>
+                                    <SelectItem value="staff">Staff</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          
+                          <Button type="submit" className="w-full transition-all duration-300" disabled={isLoading}>
+                            {isLoading ? "Creating..." : "Create User"}
+                          </Button>
+                        </form>
+                      </Form>
+                    </div>
+                  </SheetContent>
+                </Sheet>
+              </div>
             )}
           </div>
           
-          <div className="overflow-x-auto">
-            <table className="w-full border-collapse">
-              <thead>
-                <tr>
-                  <th className="border-b border-gray-700 py-2 px-4 text-left text-white font-medium">Username</th>
-                  <th className="border-b border-gray-700 py-2 px-4 text-left text-white font-medium">Group</th>
-                  <th className="border-b border-gray-700 py-2 px-4 text-left text-white font-medium">Created</th>
-                  <th className="border-b border-gray-700 py-2 px-4 text-left text-white font-medium">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
+          <div className="overflow-x-auto animate-fade-in">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="text-white font-medium">Username</TableHead>
+                  <TableHead className="text-white font-medium">Group</TableHead>
+                  <TableHead className="text-white font-medium">Created</TableHead>
+                  <TableHead className="text-white font-medium">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
                 {users.map((user) => (
-                  <tr key={user.id} className="hover:bg-gray-800/20">
-                    <td className="border-b border-gray-700 py-2 px-4 text-white">
+                  <TableRow key={user.id} className="hover:bg-gray-800/20 transition-colors duration-200">
+                    <TableCell className="text-white">
                       <div className="flex items-center">
                         <User className="h-4 w-4 mr-2 text-gray-400" />
                         {user.username} {user.username === currentUsername && <span className="ml-2 text-xs text-gray-400">(you)</span>}
                       </div>
-                    </td>
-                    <td className="border-b border-gray-700 py-2 px-4">
+                    </TableCell>
+                    <TableCell>
                       <Badge variant={getUserGroupBadgeVariant(user.user_group || 'staff')}>
                         {user.user_group || 'staff'}
                       </Badge>
-                    </td>
-                    <td className="border-b border-gray-700 py-2 px-4 text-white">
+                    </TableCell>
+                    <TableCell className="text-white">
                       {new Date(user.created_at).toLocaleString()}
-                    </td>
-                    <td className="border-b border-gray-700 py-2 px-4 text-white">
+                    </TableCell>
+                    <TableCell className="text-white">
                       <div className="flex space-x-2">
                         <Sheet>
                           <SheetTrigger asChild>
@@ -351,12 +361,13 @@ const UserManagement = () => {
                               variant="outline" 
                               size="sm"
                               onClick={() => setSelectedUser(user)}
+                              className="transition-all duration-300 hover:bg-enderhost-purple"
                             >
                               <Key className="h-4 w-4 mr-1" />
                               <span className="hidden sm:inline">Password</span>
                             </Button>
                           </SheetTrigger>
-                          <SheetContent>
+                          <SheetContent className="animate-slide-in-right">
                             {selectedUser && (
                               <>
                                 <SheetHeader>
@@ -380,7 +391,7 @@ const UserManagement = () => {
                                         )}
                                       />
                                       
-                                      <Button type="submit" className="w-full" disabled={isLoading}>
+                                      <Button type="submit" className="w-full transition-all duration-300" disabled={isLoading}>
                                         {isLoading ? "Changing..." : "Change Password"}
                                       </Button>
                                     </form>
@@ -396,25 +407,26 @@ const UserManagement = () => {
                             variant="destructive" 
                             size="sm"
                             onClick={() => onDeleteUser(user.id)}
+                            className="transition-all duration-300"
                           >
                             <Trash2 className="h-4 w-4 mr-1" />
                             <span className="hidden sm:inline">Delete</span>
                           </Button>
                         )}
                       </div>
-                    </td>
-                  </tr>
+                    </TableCell>
+                  </TableRow>
                 ))}
                 
                 {users.length === 0 && (
-                  <tr>
-                    <td colSpan={4} className="border-b border-gray-700 py-4 px-4 text-center text-gray-400">
+                  <TableRow>
+                    <TableCell colSpan={4} className="text-center text-gray-400">
                       No users found
-                    </td>
-                  </tr>
+                    </TableCell>
+                  </TableRow>
                 )}
-              </tbody>
-            </table>
+              </TableBody>
+            </Table>
           </div>
         </div>
       </div>
