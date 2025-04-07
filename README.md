@@ -45,19 +45,19 @@ The EnderHOST Order System allows you to collect Minecraft server orders, store 
 - Composer (for installing PHPMailer)
 
 ### 2. Database Setup
-1. Create a database user for the application:
-```bash
-mysql -u root -p
-```
-
-2. Run the SQL script to create the database and tables:
+1. Import the database schema:
 ```bash
 mysql -u root -p < sql/database_schema.sql
 ```
 
-3. Verify that the database was created properly:
+2. Verify the database was created properly:
 ```bash
 mysql -u root -p -e "SHOW DATABASES;" | grep orderdb
+```
+
+3. Confirm the admin user was created:
+```bash
+mysql -u root -p -e "SELECT username, user_group FROM orderdb.users;"
 ```
 
 ### 3. Frontend Build
@@ -92,7 +92,7 @@ php api/auth/init_auth.php
 
 This will:
 - Create the `users` database table if it doesn't exist
-- Create a default admin account with:
+- Ensure the default admin account exists with:
   - Username: `admin`
   - Password: `admin123`
 
@@ -208,6 +208,14 @@ chmod 755 /var/log/php
 ### Login Issues
 - Verify database connection in `api/config/db_config.php`
 - Check authentication logs: `tail -f api/logs/auth.log`
+- Check the admin user exists with the correct password hash:
+  ```sql
+  SELECT * FROM users WHERE username = 'admin';
+  ```
+- If the admin user doesn't exist or login fails, run:
+  ```bash
+  php api/auth/init_auth.php
+  ```
 - Ensure sessions are working properly: `php -i | grep session`
 
 ### Common Database Issues
