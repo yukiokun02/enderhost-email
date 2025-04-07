@@ -1,4 +1,3 @@
-
 <?php
 // Include PHPMailer classes
 use PHPMailer\PHPMailer\PHPMailer;
@@ -47,80 +46,106 @@ function sendOrderConfirmation($orderData) {
         $mail->isHTML(true);
         $mail->Subject = 'Your Minecraft Server is Ready - EnderHOST';
         
-        // HTML Email Body with EnderHOST styling - Dark background with light text
+        // HTML Email Body with EnderHOST styling - STATIC COLORS that don't change with device theme
         $mailContent = '
         <!DOCTYPE html>
         <html>
         <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <meta name="color-scheme" content="light only">
+            <meta name="supported-color-schemes" content="light only">
             <title>EnderHOST - Your Server is Ready</title>
             <style>
+                :root {
+                    color-scheme: light only;
+                    supported-color-schemes: light only;
+                }
                 body {
                     font-family: Arial, sans-serif;
                     line-height: 1.6;
                     margin: 0;
                     padding: 0;
-                    background-color: #222222;
-                    color: #FFFFFF;
+                    background-color: #1A1F2C !important;
+                    color: #FFFFFF !important;
                 }
                 .container {
                     max-width: 600px;
                     margin: 0 auto;
                     padding: 20px;
-                    background-color: #1E1E2E;
+                    background-color: #1A1F2C !important;
                     border-radius: 8px;
-                    border: 1px solid rgba(138, 100, 255, 0.3);
+                    border: 1px solid rgba(138, 100, 255, 0.3) !important;
                 }
                 .header {
                     text-align: center;
                     padding-bottom: 20px;
-                    border-bottom: 1px solid rgba(138, 100, 255, 0.3);
+                    border-bottom: 1px solid rgba(138, 100, 255, 0.3) !important;
                 }
                 .content {
                     padding: 20px 0;
                 }
                 .server-details {
-                    background-color: rgba(30, 30, 46, 0.8);
+                    background-color: rgba(26, 31, 44, 0.8) !important;
                     border-radius: 8px;
                     padding: 15px;
                     margin: 20px 0;
                 }
                 .detail-row {
                     padding: 8px 0;
-                    border-bottom: 1px solid rgba(138, 100, 255, 0.2);
+                    border-bottom: 1px solid rgba(138, 100, 255, 0.2) !important;
                 }
                 .detail-row:last-child {
                     border-bottom: none;
                 }
                 .label {
                     font-weight: bold;
-                    color: #8A64FF;
+                    color: #8A64FF !important;
                 }
                 .footer {
                     text-align: center;
                     padding-top: 20px;
-                    border-top: 1px solid rgba(138, 100, 255, 0.3);
+                    border-top: 1px solid rgba(138, 100, 255, 0.3) !important;
                     font-size: 12px;
-                    color: #cccccc;
+                    color: #cccccc !important;
                 }
                 .button {
                     display: inline-block;
-                    background: linear-gradient(to right, #8A64FF, #3B82F6);
-                    color: white;
+                    background: linear-gradient(to right, #8A64FF, #3B82F6) !important;
+                    color: white !important;
                     padding: 10px 20px;
                     text-decoration: none;
                     border-radius: 5px;
                     margin-top: 15px;
                 }
                 h1, h2 {
-                    color: #FFFFFF;
+                    color: #FFFFFF !important;
                 }
                 a {
-                    color: #3B82F6;
+                    color: #3B82F6 !important;
                 }
                 p {
-                    color: #FFFFFF;
+                    color: #FFFFFF !important;
+                }
+                /* Force dark mode styles regardless of user preference */
+                @media (prefers-color-scheme: dark) {
+                    body, .container, .server-details {
+                        background-color: #1A1F2C !important;
+                        color: #FFFFFF !important;
+                    }
+                    h1, h2, p {
+                        color: #FFFFFF !important;
+                    }
+                }
+                /* Force light mode styles regardless of user preference */
+                @media (prefers-color-scheme: light) {
+                    body, .container, .server-details {
+                        background-color: #1A1F2C !important;
+                        color: #FFFFFF !important;
+                    }
+                    h1, h2, p {
+                        color: #FFFFFF !important;
+                    }
                 }
             </style>
         </head>

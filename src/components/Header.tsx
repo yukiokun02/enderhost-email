@@ -11,78 +11,61 @@ const Header = () => {
   const location = useLocation();
 
   return (
-    <header className="py-3 px-4 sm:px-6 bg-gray-900 shadow-md">
+    <header className="fixed top-0 left-0 right-0 py-3 px-4 sm:px-6 z-50">
       <div className="container mx-auto flex justify-between items-center">
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-2">
           <EnderLogo width={40} height={40} />
-          <h1 className="text-xl font-bold text-white hidden sm:block">EnderHOST Order System</h1>
         </div>
         
-        <div className="flex items-center space-x-3">
-          <nav className="hidden md:flex items-center mr-4 space-x-2">
-            <Link to="/">
-              <Button 
-                variant={location.pathname === '/' ? 'default' : 'ghost'} 
-                size="sm"
-                className="text-white"
-              >
-                <Home className="h-4 w-4 mr-1" />
-                Orders
-              </Button>
-            </Link>
-            
-            <Link to="/users">
-              <Button 
-                variant={location.pathname === '/users' ? 'default' : 'ghost'} 
-                size="sm"
-                className="text-white"
-              >
-                <UserCog className="h-4 w-4 mr-1" />
-                Users
-              </Button>
-            </Link>
-          </nav>
-          
-          <div className="text-white flex items-center">
-            <User className="h-4 w-4 mr-2" />
+        <div className="text-white flex items-center space-x-2">
+          <div className="bg-gray-800/80 px-3 py-1.5 rounded-full flex items-center">
+            <User className="h-4 w-4 mr-2 text-enderhost-purple" />
             <span className="text-sm">{username}</span>
           </div>
-          
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={logout} 
-            className="text-white border-gray-600"
-          >
-            <LogOut className="h-4 w-4 mr-1" />
-            <span className="hidden sm:inline">Logout</span>
-          </Button>
         </div>
       </div>
       
-      {/* Mobile Navigation */}
-      <div className="md:hidden flex justify-center mt-2 space-x-2">
-        <Link to="/" className="flex-1">
+      {/* Floating Action Buttons */}
+      <div className="fixed bottom-6 right-6 flex flex-col space-y-4">
+        <Link to="/users">
           <Button 
-            variant={location.pathname === '/' ? 'default' : 'outline'} 
-            size="sm"
-            className="w-full text-white"
+            variant={location.pathname === '/users' ? 'default' : 'outline'} 
+            size="icon"
+            className={`rounded-full shadow-lg ${
+              location.pathname === '/users' 
+                ? 'bg-enderhost-purple hover:bg-enderhost-blue' 
+                : 'bg-gray-800/80 hover:bg-enderhost-purple'
+            }`}
           >
-            <Home className="h-4 w-4 mr-1" />
-            Orders
+            <UserCog className="h-5 w-5" />
+            <span className="sr-only">Users</span>
           </Button>
         </Link>
         
-        <Link to="/users" className="flex-1">
+        <Link to="/">
           <Button 
-            variant={location.pathname === '/users' ? 'default' : 'outline'} 
-            size="sm"
-            className="w-full text-white"
+            variant={location.pathname === '/' ? 'default' : 'outline'} 
+            size="icon"
+            className={`rounded-full shadow-lg ${
+              location.pathname === '/' 
+                ? 'bg-enderhost-purple hover:bg-enderhost-blue' 
+                : 'bg-gray-800/80 hover:bg-enderhost-purple'
+            }`}
           >
-            <UserCog className="h-4 w-4 mr-1" />
-            Users
+            <Home className="h-5 w-5" />
+            <span className="sr-only">Orders</span>
           </Button>
         </Link>
+        
+        <Button 
+          variant="outline" 
+          size="icon" 
+          onClick={logout} 
+          className="rounded-full bg-red-600/80 hover:bg-red-700 text-white shadow-lg"
+        >
+          <LogOut className="h-5 w-5" />
+          <span className="sr-only">Logout</span>
+        </Button>
       </div>
     </header>
   );
