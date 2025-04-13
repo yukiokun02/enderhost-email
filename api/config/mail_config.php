@@ -296,12 +296,12 @@ function testEmailConfiguration($testEmail = 'mail.enderhost@gmail.com') {
 }
 
 /**
- * Send custom email to specified recipient
+ * Send a custom email with signature
  * 
  * @param string $recipient Recipient email address
  * @param string $subject Email subject
  * @param string $content Email content
- * @param string $signature Email signature
+ * @param string $signature Email signature (HTML)
  * @return array Status and any error message
  */
 function sendCustomEmail($recipient, $subject, $content, $signature = '') {
@@ -338,32 +338,35 @@ function sendCustomEmail($recipient, $subject, $content, $signature = '') {
         $mail->isHTML(true);
         $mail->Subject = $subject;
         
-        // Combine content with signature
-        $mailContent = $content . $signature;
+        // Add EnderHOST text at the top
+        $emailContent = '<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+                            <h1 style="text-align: center; color: #333;">EnderHOST</h1>
+                            <div style="padding: 20px; background-color: #f9f9f9; border-radius: 5px;">
+                                ' . $content . '
+                            </div>';
         
-        $mail->Body = $mailContent;
-        $mail->AltBody = strip_tags(str_replace(['<br>', '<br/>', '<br />'], "\n", $mailContent));
+        // Add signature if provided
+        if (!empty($signature)) {
+            $emailContent .= $signature;
+        }
         
-        // Attempt to send the email
-        $mailSent = $mail->send();
+        $emailContent .= '<div style="margin-top: 20px; font-size: 12px; color: #777; text-align: center;">
+                            <p>© ' . date('Y') . ' EnderHOST. All rights reserved.</p>
+                          </div>
+                        </div>';
         
-        // Log the SMTP conversation regardless of success
-        file_put_contents(__DIR__ . '/../mail_debug.log', date('Y-m-d H:i:s') . ": Custom mail to {$recipient} " . 
-                         ($mailSent ? "sent successfully" : "failed") . "\n" . $debugOutput . "\n\n", FILE_APPEND);
+        $mail->Body = $emailContent;
+        $mail->AltBody = strip_tags(str_replace('<br>', "\n", $content));
         
+        $mail->send();
         return array(
             'success' => true,
             'message' => 'Email sent successfully'
         );
     } catch (Exception $e) {
-        // Log error information
-        $errorMessage = "Custom email could not be sent. Mailer Error: {$mail->ErrorInfo}\n";
-        $errorMessage .= "Debug output: \n" . $debugOutput . "\n";
-        file_put_contents(__DIR__ . '/../mail_error.log', date('Y-m-d H:i:s') . ": " . $errorMessage . "\n\n", FILE_APPEND);
-        
         return array(
             'success' => false,
-            'message' => $mail->ErrorInfo
+            'message' => 'Email could not be sent. Error: ' . $mail->ErrorInfo
         );
     }
 }

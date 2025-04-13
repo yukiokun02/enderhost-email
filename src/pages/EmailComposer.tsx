@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -33,7 +32,7 @@ const EmailComposer = () => {
   const { userGroup } = useAuth();
   const [isSending, setIsSending] = useState(false);
 
-  // Plain text signature without icons
+  // Clean signature without any icons
   const signature = `
 <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #8A64FF; font-family: Arial, sans-serif;">
   <div style="font-size: 14px; line-height: 1.6;">
