@@ -7,6 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Mail, Send } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import Header from '@/components/Header';
+import axios from 'axios';
 import {
   Form,
   FormControl,
@@ -61,12 +62,15 @@ Website: <a href="https://www.enderhost.in">www.enderhost.in</a>
     console.log("Content:", values.content + signature);
     
     try {
-      // Here we would normally send the email via API
-      // This would include the SMTP configuration on the server side
+      // Send the email via API
+      const response = await axios.post('/api/email/send_email.php', {
+        recipient: values.recipient,
+        subject: values.subject,
+        content: values.content,
+        signature: signature
+      });
       
-      // Simulate sending for now
-      setTimeout(() => {
-        setIsSending(false);
+      if (response.data.success) {
         toast({
           title: "Email Sent",
           description: `Your email to ${values.recipient} has been sent successfully`,
@@ -74,14 +78,18 @@ Website: <a href="https://www.enderhost.in">www.enderhost.in</a>
         
         // Reset form
         form.reset();
-      }, 1500);
+      } else {
+        throw new Error(response.data.error || 'Failed to send email');
+      }
     } catch (error) {
-      setIsSending(false);
+      console.error('Email sending error:', error);
       toast({
         title: "Error Sending Email",
-        description: "There was a problem sending your email. Please try again.",
+        description: error instanceof Error ? error.message : "There was a problem sending your email. Please try again.",
         variant: "destructive",
       });
+    } finally {
+      setIsSending(false);
     }
   };
 
