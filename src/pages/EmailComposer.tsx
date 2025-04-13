@@ -1,10 +1,9 @@
-
 import React, { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Mail, Send, Globe, AtSign, Facebook, Twitter, Linkedin } from 'lucide-react';
+import { Mail, Send } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import Header from '@/components/Header';
 import axios from 'axios';
@@ -33,35 +32,21 @@ const EmailComposer = () => {
   const { userGroup } = useAuth();
   const [isSending, setIsSending] = useState(false);
 
-  // Enhanced signature with branding and icons
+  // Simplified signature with universally compatible icons
   const signature = `
 <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #8A64FF; font-family: Arial, sans-serif;">
-  <div style="display: flex; align-items: center; margin-bottom: 10px;">
-    <img src="https://www.enderhost.in/path-to-logo.png" alt="EnderHOST Logo" style="width: 120px; height: auto; margin-right: 10px;">
-  </div>
   <div style="font-size: 14px; line-height: 1.6;">
     <p style="margin: 0; font-weight: bold; color: #8A64FF;">Tanumoy Maity</p>
     <p style="margin: 0; color: #3B82F6;">Founder, EnderHOST</p>
     <div style="margin-top: 8px;">
       <div style="display: flex; align-items: center; margin-bottom: 5px;">
-        <span style="display: inline-block; margin-right: 8px; color: #8A64FF;">📧</span>
+        <span style="display: inline-block; margin-right: 8px; color: #8A64FF;">✉️</span>
         <a href="mailto:mail@enderhost.in" style="color: #3B82F6; text-decoration: none;">mail@enderhost.in</a>
       </div>
       <div style="display: flex; align-items: center; margin-bottom: 5px;">
         <span style="display: inline-block; margin-right: 8px; color: #8A64FF;">🌐</span>
         <a href="https://www.enderhost.in" style="color: #3B82F6; text-decoration: none;">www.enderhost.in</a>
       </div>
-    </div>
-    <div style="margin-top: 8px;">
-      <a href="https://facebook.com/enderhost" style="color: #3B82F6; text-decoration: none; margin-right: 12px;">
-        <span style="color: #1877F2;">Facebook</span>
-      </a>
-      <a href="https://twitter.com/enderhost" style="color: #3B82F6; text-decoration: none; margin-right: 12px;">
-        <span style="color: #1DA1F2;">Twitter</span>
-      </a>
-      <a href="https://linkedin.com/company/enderhost" style="color: #3B82F6; text-decoration: none;">
-        <span style="color: #0A66C2;">LinkedIn</span>
-      </a>
     </div>
   </div>
 </div>
