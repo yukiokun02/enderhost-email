@@ -21,7 +21,11 @@ function composeAndSendEmail($recipient, $subject, $content, $signature = '') {
         );
     }
     
+    // Process content to preserve paragraph breaks
+    // Replace single newlines with <br> and double newlines with paragraph breaks
+    $processedContent = nl2br($content);
+    
     // Send the custom email using the function from mail_config.php
-    return sendCustomEmail($recipient, $subject, $content, $signature);
+    return sendCustomEmail($recipient, $subject, $processedContent, $signature);
 }
 ?>
