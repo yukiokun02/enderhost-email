@@ -331,7 +331,8 @@ function sendCustomEmail($recipient, $subject, $content, $signature = '') {
         // Recipients
         $mail->setFrom('noreply@enderhost.in', 'EnderHOST');
         $mail->addAddress($recipient);
-        $mail->addBCC('mail.enderhost@gmail.com'); // Send a copy to admin
+        // Remove the BCC to prevent duplicate emails
+        // $mail->addBCC('mail.enderhost@gmail.com'); 
         
         // Content
         $mail->isHTML(true);

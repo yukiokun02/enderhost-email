@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -32,21 +33,19 @@ const EmailComposer = () => {
   const { userGroup } = useAuth();
   const [isSending, setIsSending] = useState(false);
 
-  // Simplified signature with universally compatible icons
+  // Plain text signature without icons
   const signature = `
 <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #8A64FF; font-family: Arial, sans-serif;">
   <div style="font-size: 14px; line-height: 1.6;">
     <p style="margin: 0; font-weight: bold; color: #8A64FF;">Tanumoy Maity</p>
     <p style="margin: 0; color: #3B82F6;">Founder, EnderHOST</p>
     <div style="margin-top: 8px;">
-      <div style="display: flex; align-items: center; margin-bottom: 5px;">
-        <span style="display: inline-block; margin-right: 8px; color: #8A64FF;">✉️</span>
+      <p style="margin: 0;">
         <a href="mailto:mail@enderhost.in" style="color: #3B82F6; text-decoration: none;">mail@enderhost.in</a>
-      </div>
-      <div style="display: flex; align-items: center; margin-bottom: 5px;">
-        <span style="display: inline-block; margin-right: 8px; color: #8A64FF;">🌐</span>
+      </p>
+      <p style="margin: 0;">
         <a href="https://www.enderhost.in" style="color: #3B82F6; text-decoration: none;">www.enderhost.in</a>
-      </div>
+      </p>
     </div>
   </div>
 </div>
