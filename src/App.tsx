@@ -9,6 +9,7 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import UserManagement from "./pages/UserManagement";
+import EmailComposer from "./pages/EmailComposer";
 import NotFound from "./pages/NotFound";
 import "@/index.css";
 
@@ -36,6 +37,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <UserManagement />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/email" 
+              element={
+                <ProtectedRoute>
+                  <EmailComposer />
                 </ProtectedRoute>
               } 
             />

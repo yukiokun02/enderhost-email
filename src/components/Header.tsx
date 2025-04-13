@@ -3,7 +3,7 @@ import React from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import EnderLogo from '@/components/EnderLogo';
-import { LogOut, User, UserCog, Home } from 'lucide-react';
+import { LogOut, User, UserCog, Home, Mail } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 
 const Header = () => {
@@ -53,6 +53,21 @@ const Header = () => {
             </Button>
           </Link>
         )}
+        
+        <Link to="/email">
+          <Button 
+            variant={location.pathname === '/email' ? 'default' : 'outline'} 
+            size="icon"
+            className={`rounded-full shadow-lg transition-all duration-300 ${
+              location.pathname === '/email' 
+                ? 'bg-enderhost-purple hover:bg-enderhost-blue' 
+                : 'bg-gray-800/80 hover:bg-enderhost-purple'
+            }`}
+          >
+            <Mail className="h-5 w-5" />
+            <span className="sr-only">Email</span>
+          </Button>
+        </Link>
         
         <Link to="/">
           <Button 
