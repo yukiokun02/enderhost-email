@@ -62,7 +62,7 @@ Website: <a href="https://www.enderhost.in">www.enderhost.in</a>
     console.log("Content:", values.content + signature);
     
     try {
-      // Send the email via API
+      // Send the email via our mail composer API
       const response = await axios.post('/api/email/send_email.php', {
         recipient: values.recipient,
         subject: values.subject,

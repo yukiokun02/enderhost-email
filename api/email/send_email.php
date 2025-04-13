@@ -30,15 +30,8 @@ if (!$data || !isset($data['recipient']) || !isset($data['subject']) || !isset($
     exit;
 }
 
-// Include mail configuration
-require_once '../config/mail_config.php';
-
-// Validate recipient email
-if (!filter_var($data['recipient'], FILTER_VALIDATE_EMAIL)) {
-    http_response_code(400);
-    echo json_encode(['error' => 'Invalid recipient email']);
-    exit;
-}
+// Include mail composer functionality
+require_once 'mail_composer.php';
 
 // Get data from request
 $recipient = $data['recipient'];
@@ -46,8 +39,8 @@ $subject = $data['subject'];
 $content = $data['content'];
 $signature = isset($data['signature']) ? $data['signature'] : '';
 
-// Send the email
-$result = sendCustomEmail($recipient, $subject, $content, $signature);
+// Compose and send the email
+$result = composeAndSendEmail($recipient, $subject, $content, $signature);
 
 // Return the result
 if ($result['success']) {
