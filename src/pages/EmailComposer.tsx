@@ -3,7 +3,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Mail, Send } from 'lucide-react';
+import { Mail, Send, Edit } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import Header from '@/components/Header';
 import axios from 'axios';
@@ -24,6 +24,7 @@ const emailFormSchema = z.object({
   recipient: z.string().email("Please enter a valid email address"),
   subject: z.string().min(1, "Subject is required"),
   content: z.string().min(1, "Email content is required"),
+  signature: z.string().optional(),
 });
 
 type EmailFormValues = z.infer<typeof emailFormSchema>;
@@ -31,13 +32,14 @@ type EmailFormValues = z.infer<typeof emailFormSchema>;
 const EmailComposer = () => {
   const { userGroup } = useAuth();
   const [isSending, setIsSending] = useState(false);
+  const [editingSignature, setEditingSignature] = useState(false);
 
-  // Clean signature without any icons
-  const signature = `
+  // Default signature with EnderHOST branding
+  const defaultSignature = `
 <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #8A64FF; font-family: Arial, sans-serif;">
   <div style="font-size: 14px; line-height: 1.6;">
-    <p style="margin: 0; font-weight: bold; color: #8A64FF;">Tanumoy Maity</p>
-    <p style="margin: 0; color: #3B82F6;">Founder, EnderHOST</p>
+    <p style="margin: 0; font-weight: bold; color: #8A64FF;">EnderHOST</p>
+    <p style="margin: 0; color: #3B82F6;">Support Team</p>
     <div style="margin-top: 8px;">
       <p style="margin: 0;">
         <a href="mailto:mail@enderhost.in" style="color: #3B82F6; text-decoration: none;">mail@enderhost.in</a>
@@ -50,6 +52,30 @@ const EmailComposer = () => {
 </div>
 `;
 
+  // Email template with branded header and footer
+  const getEmailTemplate = (content, signature) => {
+    return `
+<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+  <!-- Header -->
+  <div style="background: linear-gradient(90deg, #8A64FF, #3B82F6); padding: 20px; border-radius: 8px 8px 0 0; text-align: center;">
+    <h1 style="color: white; margin: 0; font-size: 24px;">EnderHOST</h1>
+    <p style="color: white; margin: 5px 0 0 0; font-size: 16px;">Premium Hosting Solutions</p>
+  </div>
+  
+  <!-- Content -->
+  <div style="padding: 20px; background-color: #ffffff; border-left: 1px solid #eaeaea; border-right: 1px solid #eaeaea;">
+    ${content}
+  </div>
+  
+  <!-- Footer -->
+  <div style="background-color: #1E1E2E; padding: 15px; border-radius: 0 0 8px 8px; text-align: center;">
+    ${signature}
+    <p style="color: #9ca3af; font-size: 12px; margin-top: 10px;">© ${new Date().getFullYear()} EnderHOST. All rights reserved.</p>
+  </div>
+</div>
+`;
+  };
+
   // Initialize form with validation
   const form = useForm<EmailFormValues>({
     resolver: zodResolver(emailFormSchema),
@@ -57,24 +83,24 @@ const EmailComposer = () => {
       recipient: "",
       subject: "",
       content: "",
+      signature: defaultSignature,
     },
   });
 
   const handleSend = async (values: EmailFormValues) => {
     setIsSending(true);
     
-    // Log the email data for debugging
-    console.log("Sending email to:", values.recipient);
-    console.log("Subject:", values.subject);
-    console.log("Content:", values.content + signature);
+    // Prepare the email content with template
+    const emailContent = getEmailTemplate(values.content, values.signature || defaultSignature);
     
     try {
       // Send the email via our mail composer API
       const response = await axios.post('/api/email/send_email.php', {
         recipient: values.recipient,
         subject: values.subject,
-        content: values.content,
-        signature: signature
+        content: emailContent,
+        // We don't need to send signature separately anymore as it's included in the content
+        signature: ""
       });
       
       if (response.data.success) {
@@ -83,8 +109,14 @@ const EmailComposer = () => {
           description: `Your email to ${values.recipient} has been sent successfully`,
         });
         
-        // Reset form
-        form.reset();
+        // Reset form but keep the signature
+        const currentSignature = form.getValues("signature");
+        form.reset({
+          recipient: "",
+          subject: "",
+          content: "",
+          signature: currentSignature,
+        });
       } else {
         throw new Error(response.data.error || 'Failed to send email');
       }
@@ -168,8 +200,42 @@ const EmailComposer = () => {
               />
               
               <div className="border border-gray-700 rounded-md p-3 bg-gray-800/30">
-                <h3 className="text-sm font-medium text-gray-300 mb-2">Signature Preview:</h3>
-                <div className="text-xs text-gray-400 signature-preview" dangerouslySetInnerHTML={{ __html: signature }} />
+                <div className="flex justify-between items-center mb-2">
+                  <h3 className="text-sm font-medium text-gray-300">Signature:</h3>
+                  <Button 
+                    type="button" 
+                    variant="ghost" 
+                    size="sm"
+                    onClick={() => setEditingSignature(!editingSignature)}
+                    className="text-xs text-enderhost-purple hover:text-enderhost-blue"
+                  >
+                    <Edit className="h-3 w-3 mr-1" />
+                    {editingSignature ? "Preview" : "Edit"}
+                  </Button>
+                </div>
+                
+                {editingSignature ? (
+                  <FormField
+                    control={form.control}
+                    name="signature"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Textarea
+                            placeholder="Edit your signature HTML..."
+                            className="min-h-[100px] bg-gray-800/50 text-white border-gray-700 text-xs font-mono"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                ) : (
+                  <div className="text-xs text-gray-400 signature-preview border border-gray-700 p-2 rounded bg-gray-800/20" 
+                    dangerouslySetInnerHTML={{ __html: form.watch("signature") || defaultSignature }} 
+                  />
+                )}
               </div>
               
               <div className="pt-2">
