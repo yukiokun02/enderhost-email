@@ -24,14 +24,25 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setIsAuthenticated(true);
     setUsername(user);
     setUserGroup(group);
+    // Save to localStorage as a backup
+    localStorage.setItem('auth_username', user);
+    localStorage.setItem('auth_userGroup', group);
   };
 
   const logout = async () => {
     try {
-      await fetch('/api/auth/logout.php', {
+      const response = await fetch('/api/auth/logout.php', {
         method: 'POST',
         credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json'
+        },
       });
+      
+      // Clear local storage
+      localStorage.removeItem('auth_username');
+      localStorage.removeItem('auth_userGroup');
+      
       setIsAuthenticated(false);
       setUsername(null);
       setUserGroup(null);
@@ -45,7 +56,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       const response = await fetch('/api/auth/check_session.php', {
         credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json'
+        },
       });
+      
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      
       const data = await response.json();
       
       if (data.status === 'success' && data.authenticated) {
@@ -54,6 +73,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setUserGroup(data.userGroup);
         return true;
       } else {
+        // Try to recover from localStorage as fallback
+        const storedUsername = localStorage.getItem('auth_username');
+        const storedUserGroup = localStorage.getItem('auth_userGroup');
+        
+        if (storedUsername && storedUserGroup) {
+          setIsAuthenticated(true);
+          setUsername(storedUsername);
+          setUserGroup(storedUserGroup);
+          return true;
+        }
+        
         setIsAuthenticated(false);
         setUsername(null);
         setUserGroup(null);
@@ -61,6 +91,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
     } catch (error) {
       console.error('Auth check error:', error);
+      
+      // Try to recover from localStorage as fallback
+      const storedUsername = localStorage.getItem('auth_username');
+      const storedUserGroup = localStorage.getItem('auth_userGroup');
+      
+      if (storedUsername && storedUserGroup) {
+        setIsAuthenticated(true);
+        setUsername(storedUsername);
+        setUserGroup(storedUserGroup);
+        return true;
+      }
+      
       setIsAuthenticated(false);
       setUsername(null);
       setUserGroup(null);

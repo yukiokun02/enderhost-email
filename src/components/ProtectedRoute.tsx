@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/hooks/use-toast';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -12,21 +13,39 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const [isChecking, setIsChecking] = useState(true);
   const [isAuthorized, setIsAuthorized] = useState(false);
   const location = useLocation();
+  const { toast } = useToast();
 
   useEffect(() => {
     const verifyAuth = async () => {
       setIsChecking(true);
-      const authenticated = await checkAuth();
-      setIsAuthorized(authenticated);
-      setIsChecking(false);
+      try {
+        const authenticated = await checkAuth();
+        setIsAuthorized(authenticated);
+        
+        if (!authenticated) {
+          toast({
+            variant: "destructive",
+            title: "Authentication Error",
+            description: "Your session has expired. Please log in again.",
+          });
+        }
+      } catch (error) {
+        console.error("Auth verification error:", error);
+        setIsAuthorized(false);
+      } finally {
+        setIsChecking(false);
+      }
     };
 
     verifyAuth();
-  }, [checkAuth]);
+  }, [checkAuth, toast]);
 
   if (isChecking) {
-    // You could return a loading spinner here
-    return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-pulse text-enderhost-purple text-xl">Loading...</div>
+      </div>
+    );
   }
 
   if (!isAuthorized) {
